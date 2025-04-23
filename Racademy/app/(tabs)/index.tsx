@@ -10,3 +10,11 @@ export default function HomeScreen() {
       </ScrollView>
   );
 }
+
+export default function Hello() {
+    return (
+        <ScrollView classname="flex-1 bg-white">
+            <Home />
+        </ScrollView>
+    )
+}
