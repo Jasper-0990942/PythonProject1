@@ -165,11 +165,11 @@ class WP4DatabaseGenerator:
 
 if __name__ == "__main__":
     my_path = Path(__file__).parent.resolve()
-    project_root = my_path.parent.parent
+    backend_root = my_path.parent
     # Deze slashes komen uit de "Path" module. Dit is een module die je kan gebruiken
     # om paden te maken. Dit is handig omdat je dan niet zelf hoeft te kijken of je
     # een / (mac) of een \ (windows) moet gebruiken.
-    database_path = project_root / "wp4-2025-react-1b5-bamischijf" / "database" / "database.db"
+    database_path = backend_root / "database" / "database.db"
     database_generator = WP4DatabaseGenerator(
         database_path, overwrite=True, initial_data=True
     )
