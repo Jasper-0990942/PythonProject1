@@ -1,9 +1,16 @@
 from flask import Blueprint, request
 
+from backend.models.source_model import Sources
+
 sources_bp = Blueprint('sources_bp', __name__)
 
 @sources_bp.post('/')
 def create_source():
-
-    print(request.get_json())
-    return { 'success': True }
+    title = request.json["title"]
+    description = request.json["description"]
+    link = request.json["link"]
+    ISBN = request.json["ISBN"]
+    print(request.json)
+    sources_model = Sources()
+    new_source = sources_model.add_sources(title, description, link, ISBN)
+    return new_source, 201

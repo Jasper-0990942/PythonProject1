@@ -24,15 +24,15 @@ class WP4DatabaseGenerator:
 
     def create_table_users(self):
         create_statement = """
-         CREATE TABLE IF NOT EXISTS gebruikers (
-             gebruiker_id INTEGER PRIMARY KEY AUTOINCREMENT,
-             display_naam TEXT NOT NULL,
+         CREATE TABLE IF NOT EXISTS users (
+             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+             display_name TEXT NOT NULL,
              studentnr INTEGER NOT NULL,
-             wachtwoord TEXT NOT NULL,
-             voornaam TEXT NOT NULL,
-             tussenvoegsel TEXT,
-             achternaam TEXT NOT NULL,
-             geboortedatum DATETIME NOT NULL,
+             password TEXT NOT NULL,
+             fname TEXT NOT NULL,
+             infix TEXT,
+             lname TEXT NOT NULL,
+             dateofbirth DATETIME NOT NULL,
              status TEXT NOT NULL
             );
          """
@@ -41,14 +41,14 @@ class WP4DatabaseGenerator:
 
     def create_table_admins(self):
         create_statement = """
-         CREATE TABLE IF NOT EXISTS beheerders (
-             beheerder_id INTEGER PRIMARY KEY AUTOINCREMENT,
+         CREATE TABLE IF NOT EXISTS admins (
+             admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
              email TEXT NOT NULL,
-             wachtwoord TEXT NOT NULL,
-             voornaam TEXT NOT NULL,
-             tussenvoegsel TEXT,
-             achternaam TEXT NOT NULL,
-             geboortedatum DATETIME NOT NULL,
+             password TEXT NOT NULL,
+             fname TEXT NOT NULL,
+             infix TEXT,
+             lname TEXT NOT NULL,
+             dateofbirth DATETIME NOT NULL,
              status TEXT NOT NULL);
          """
         self.__execute_transaction_statement(create_statement)
@@ -56,41 +56,42 @@ class WP4DatabaseGenerator:
 
     def create_table_sources(self):
         create_statement = """
-         CREATE TABLE IF NOT EXISTS bronnen (
-             bron_id INTEGER PRIMARY KEY AUTOINCREMENT,
-             gebruiker_id INTEGER NOT NULL,
-             brontype_id TEXT INTEGER NULL,
-             titel TEXT NOT NULL,
-             beschrijving TEXT,
+         CREATE TABLE IF NOT EXISTS sources (
+             source_id INTEGER PRIMARY KEY AUTOINCREMENT,
+             user_id INTEGER NOT NULL,
+             sourcetype_id TEXT INTEGER NULL,
+             title TEXT NOT NULL,
+             description TEXT,
              link TEXT,
-             afbeelding_id INTEGER,
+             ISBN INTEGER,
+             img_id INTEGER,
              date_created DATETIME DEFAULT CURRENT_TIMESTAMP,          
-             FOREIGN KEY (gebruiker_id) REFERENCES gebruikers (gebruiker_id),
-             FOREIGN KEY (brontype_id) REFERENCES brontypes (brontype_id));
+             FOREIGN KEY (user_id) REFERENCES users (user_id),
+             FOREIGN KEY (sourcetype_id) REFERENCES sourcetypes (sourcetype_id));
          """
         self.__execute_transaction_statement(create_statement)
         print("✅ sources table created")
 
     def create_table_sourcetypes(self):
         create_statement = """
-         CREATE TABLE IF NOT EXISTS brontypes (
-             brontype_id INTEGER PRIMARY KEY AUTOINCREMENT,
-             brontype TEXT);
+         CREATE TABLE IF NOT EXISTS sourcetypes (
+             sourcetype_id INTEGER PRIMARY KEY AUTOINCREMENT,
+             sourcetype TEXT);
          """
         self.__execute_transaction_statement(create_statement)
         print("✅ sourcetypes table created")
 
     def create_table_reviews(self):
         create_statement = """
-            CREATE TABLE IF NOT EXISTS recensies (
-                recensie_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                bron_id INTEGER NOT NULL,
-                gebruiker_id INTEGER NULL,
-                titel TEXT,
-                omschrijving TEXT,
-                sterren INTEGER NOT NULL,         
-                FOREIGN KEY (gebruiker_id) REFERENCES gebruikers (gebruiker_id),
-                FOREIGN KEY (bron_id) REFERENCES bronnen (bron_id));
+            CREATE TABLE IF NOT EXISTS reviews (
+                review_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_id INTEGER NOT NULL,
+                user_id INTEGER NULL,
+                title TEXT,
+                description TEXT,
+                stars INTEGER NOT NULL,         
+                FOREIGN KEY (user_id) REFERENCES users (user_id),
+                FOREIGN KEY (source_id) REFERENCES sources (source_id));
             """
         self.__execute_transaction_statement(create_statement)
         print("✅ reviews table created")
@@ -107,11 +108,11 @@ class WP4DatabaseGenerator:
 
     def create_table_source_tags(self):
         create_statement = """
-               CREATE TABLE IF NOT EXISTS bronnen_tags (
-                   bronnen_tags_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   bron_id INTEGER NOT NULL,
+               CREATE TABLE IF NOT EXISTS source_tags (
+                   source_tags_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   source_id INTEGER NOT NULL,
                    tag_id INTEGER NULL,   
-                   FOREIGN KEY (bron_id) REFERENCES bronnen (bron_id),
+                   FOREIGN KEY (source_id) REFERENCES sources (source_id),
                    FOREIGN KEY (tag_id) REFERENCES tags (tag_id));
                """
         self.__execute_transaction_statement(create_statement)
@@ -121,7 +122,7 @@ class WP4DatabaseGenerator:
         admins = [
             ("john@pork.nl", "halal", "John", "pork", "19-09-2000", "actief")
         ]
-        insert_statement = "INSERT INTO beheerders (email, wachtwoord, voornaam, achternaam, geboortedatum, status) VALUES (?, ?, ?, ?, ?, ?);"
+        insert_statement = "INSERT INTO admins (email, password, fname, lname, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?);"
         self.__execute_many_transaction_statement(insert_statement, admins)
         print("✅ Default teachers / users created")
 
