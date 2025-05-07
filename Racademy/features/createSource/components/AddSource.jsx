@@ -26,7 +26,7 @@ function AddSource () {
             })
         })
             .then(response => response.json())
-            .then(data => data)
+            .then(data => console.log(data))
     }
 
 
@@ -44,7 +44,6 @@ function AddSource () {
 
             <Input placeholder="Tags"/>
 
-            <Text className="font-bold">Beschrijving</Text>
             <Input placeholder="Beschrijving" multiline={true} onChangeText={setDescription}
                    className="border rounded border-gray-400 h-48 mb-5"/>
 
