@@ -9,7 +9,7 @@ function AddSource () {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [link, setLink] = useState("");
-    const [ISBN, setISBN] = useState("");
+    const [isbn, setIsbn] = useState("");
 
     function handleSubmit() {
 
@@ -22,7 +22,7 @@ function AddSource () {
                 title,
                 description,
                 link,
-                ISBN
+                isbn
             })
         })
             .then(response => response.json())
@@ -38,7 +38,7 @@ function AddSource () {
 
             {
                 sourceType === "link"
-                    ? <Input placeholder="ISBN" onChangeText={setISBN}/>
+                    ? <Input placeholder="ISBN" onChangeText={setIsbn}/>
                     : <Input placeholder="Link" onChangeText={setLink}/>
             }
 

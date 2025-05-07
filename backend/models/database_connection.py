@@ -1,13 +1,14 @@
 import sqlite3
+from pathlib import Path
 
-class Database(object):
-    def __init__(self, path):
-        self.path = path
+root = Path(__file__).parent.parent
+
+class Database:
+    def __init__(self):
+        self.path = root / 'database' / 'database.db'
 
     def connect_db(self):
-        con = sqlite3.connect(
-            self.path, check_same_thread=False
-        )
+        con = sqlite3.connect(self.path)
         con.row_factory = sqlite3.Row
-        cursor = con.cursor()
-        return cursor, con
+        cur = con.cursor()
+        return cur, con
