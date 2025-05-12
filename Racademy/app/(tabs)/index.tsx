@@ -1,6 +1,5 @@
-import {SafeAreaView, View} from 'react-native'
+import { SafeAreaView, View} from 'react-native'
 import AddSource from "@/features/createSource/components/AddSource";
-
 
 
 export default function HomeScreen() {

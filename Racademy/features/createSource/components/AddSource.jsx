@@ -1,5 +1,4 @@
 import {Text, View, TextInput, Pressable} from 'react-native';
-import * as ImagePicker from "expo-image-picker";
 import {useState} from "react";
 import Input from "@/features/createSource/components/Input";
 
@@ -48,6 +47,7 @@ function AddSource () {
                    className="border rounded border-gray-400 h-48 mb-5"/>
 
             <Text className="font-bold">Afbeelding</Text>
+
 
             <Pressable
                 className="p-2 bg-blue-300 flex justify-center items-center"
