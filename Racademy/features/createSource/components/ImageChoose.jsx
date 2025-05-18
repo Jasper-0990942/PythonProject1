@@ -1,12 +1,15 @@
-import * as ImagePicker from "expo-image-picker"
-import {View, Image, Pressable, Text} from "react-native"
+
+import {View, Pressable, Text, Image} from "react-native"
+import {useState} from "react";
+import {launchImageLibraryAsync} from "expo-image-picker";
 
 
 export default function ImageChoose () {
+  const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
+    let result = await launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
       allowsEditing: true,
       aspect: [4, 3],
@@ -14,7 +17,7 @@ export default function ImageChoose () {
     })
 
     if (!result.canceled) {
-      console.log(result);
+      setImage(result.assets[0].uri)
     } else {
       alert("je hebt geen img geselecteerd")
     }
@@ -23,8 +26,8 @@ export default function ImageChoose () {
 
   return (
     <View className="bg-amber-300">
-      <Text>Hellooo</Text>
       <Pressable className=" backdrop-contrast-75 bg-blue-950" title="Pick an image from camera roll" onPress={pickImage}>HOI</Pressable>
+      {image && <Image source={{ uri: image }} className="w-96 h-96" resizeMode="contain" />}
     </View>
   )
 };
