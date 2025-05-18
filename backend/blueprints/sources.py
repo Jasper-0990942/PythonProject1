@@ -17,3 +17,10 @@ def create_source():
     sources_model = Sources()
     new_source = sources_model.add_sources(user_id, title, description, link, isbn)
     return new_source, 201
+
+@sources_bp.get('/')
+@cross_origin()
+def get_all_sources():
+    sources_model = Sources()
+
+    return {'sources': [{'id': 4, 'titel': 'yogurt'},{'id': 25, 'titel': 'loverxoxo'},]}
