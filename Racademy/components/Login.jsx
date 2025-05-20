@@ -30,30 +30,30 @@ function Login(props) {
   );
 }
 
-const handleLogin=async ()=> {
-  try{
-    const response = await fetch('http://localhost')
-    method: 'POST',
-        headers: {
-      'Content-type': 'application/json',
+const handleLogin = async () => {
+  try {
+    const response = await fetch('http://192.168.1.100:5000/', {  // Replace with your computer’s IP
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert('Login successful!');
+      // Navigate to another screen if needed
+    } else {
+      alert(data.message || 'Invalid credentials');
     }
-    body: JSON.stringify({username, password}),
+  } catch (error) {
+    console.error(error);
+    alert('Login failed. Please try again.');
   }
 };
 
-const data= await. response.json();
-
-if (response.ok && data.success) {
-  alert('Login succesful)');
-
-} else {
-  alert('Invalid credentials');
-}
-} catch (error) {
-  console.error(error);
-  alert('Login failed')
-}
-};
 
 const styles = StyleSheet.create({
   container: {
