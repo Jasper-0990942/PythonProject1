@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+const [username, setUsername] = useState('');
+const [password, setPassword] = useState('');
 
 function Login(props) {
   return (
@@ -10,11 +12,15 @@ function Login(props) {
           style={styles.input}
           placeholder="Username"
           autoCapitalize="none"
+          value={username}
+          onChangeText={setUsername}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
         <Pressable style={styles.buttonContainer}>
           <Text style={styles.buttonText}>Login</Text>
@@ -23,6 +29,31 @@ function Login(props) {
     </View>
   );
 }
+
+const handleLogin=async ()=> {
+  try{
+    const response = await fetch('http://localhost')
+    method: 'POST',
+        headers: {
+      'Content-type': 'application/json',
+    }
+    body: JSON.stringify({username, password}),
+  }
+};
+
+const data= await. response.json();
+
+if (response.ok && data.success) {
+  alert('Login succesful)');
+
+} else {
+  alert('Invalid credentials');
+}
+} catch (error) {
+  console.error(error);
+  alert('Login failed')
+}
+};
 
 const styles = StyleSheet.create({
   container: {
