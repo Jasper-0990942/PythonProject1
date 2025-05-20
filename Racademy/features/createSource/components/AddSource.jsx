@@ -1,4 +1,4 @@
-import {Text, View, TextInput, Pressable} from 'react-native';
+import {Text, View, TextInput, Pressable, Image} from 'react-native';
 import {useState} from "react";
 import Input from "@/features/createSource/components/Input";
 
@@ -47,7 +47,7 @@ function AddSource () {
                    className="border rounded border-gray-400 h-48 mb-5"/>
 
             <Text className="font-bold">Afbeelding</Text>
-
+            <Image source={require("../assets/images/image-file-icon.png")} />
 
             <Pressable
                 className="p-2 bg-blue-300 flex justify-center items-center"

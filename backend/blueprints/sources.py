@@ -22,5 +22,5 @@ def create_source():
 @cross_origin()
 def get_all_sources():
     sources_model = Sources()
-
-    return {'sources': [{'id': 4, 'titel': 'yogurt'},{'id': 25, 'titel': 'loverxoxo'},]}
+    sources = sources_model.get_all_sources()
+    return {'sources': sources}

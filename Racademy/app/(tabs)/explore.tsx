@@ -10,8 +10,8 @@ import Home from "@/features/Home/Home";
 
 export default function Explore() {
   return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="bg-neutral-50 items-center h-screen">
+      <SafeAreaView className="flex-1 bg-white items-center ">
+        <View className= "w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full align-center">
 
             <Home />
 

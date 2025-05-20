@@ -21,6 +21,7 @@ class WP4DatabaseGenerator:
 
         if self.create_initial_data:
             self.insert_admin()
+            self.insert_user()
 
     def create_table_users(self):
         create_statement = """
@@ -124,7 +125,16 @@ class WP4DatabaseGenerator:
         ]
         insert_statement = "INSERT INTO admins (email, password, fname, lname, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?);"
         self.__execute_many_transaction_statement(insert_statement, admins)
-        print("✅ Default teachers / users created")
+        print("✅ Default admin created")
+
+    def insert_user(self):
+        users = [
+            ("jansmit", "1234567", "lol", "jan", "van", "smit", "20-03-2001", "actief")
+
+        ]
+        insert_statement = "INSERT INTO users (display_name, studentnr, password, fname, infix, lname, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
+        self.__execute_many_transaction_statement(insert_statement, users)
+        print("✅ Default users created")
 
     # Transacties zijn duur, dat wil zeggen, ze kosten veel tijd en CPU kracht. Als je veel insert doet
     # bundel je ze in één transactie, of je gebruikt de SQLite executemany methode.
