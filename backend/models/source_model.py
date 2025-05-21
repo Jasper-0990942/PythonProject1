@@ -15,7 +15,7 @@ class Sources:
 
     def get_all_sources(self):
         result = self.cursor.execute(
-            '''SELECT sources.title, sources.description, sources.link, sources.ISBN, users.display_name, users.studentnr FROM sources JOIN users ON sources.user_id = users.user_id''').fetchall()
+            '''SELECT sources.title, sources.description, sources.link, sources.ISBN, users.display_name, sources.date_created, users.studentnr FROM sources JOIN users ON sources.user_id = users.user_id''').fetchall()
         print(result)
         sources = []
         for row in result:
