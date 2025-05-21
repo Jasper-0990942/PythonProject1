@@ -1,0 +1,78 @@
+import {Text, View, TextInput, Pressable, Image} from 'react-native';
+import {useState} from "react";
+import Input from "@/features/createSource/components/Input";
+import ImageFileIcon from "@/assets/images/image-file-icon.png";
+import ImagePicker from "@/features/createSource/components/ImagePicker";
+
+function AddSource () {
+    const [sourceType, setSourceType] = useState("link"); // link or book
+
+    let initialValue = "link"
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [link, setLink] = useState("");
+    const [isbn, setIsbn] = useState("");
+    const [PressableText, setPressableText] = useState(initialValue)
+
+
+    function handleSubmit() {
+
+        fetch('http://localhost:5000/sources/', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title,
+                description,
+                link,
+                isbn
+            })
+        })
+            .then(response => response.json())
+            .then(data => {if (data['succes']) {alert('succesvol')} })
+
+
+        }
+
+        function ClickText () {
+            setPressableText('isbn')
+    }
+
+
+
+    return (
+        <View className=" w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full justify-center">
+
+            <Text className="text-3xl font-bold mb-11 text-center">Bronnen</Text>
+            <Pressable onPress={ClickText}>{PressableText}</Pressable>
+            <Input placeholder="Titel" onChangeText={setTitle}/>
+
+
+            {
+                sourceType === "link"
+                    ? <Input placeholder="ISBN" onChangeText={setIsbn}/>
+                    : <Input placeholder="Link" onChangeText={setLink}/>
+            }
+
+            <Input placeholder="Tags"/>
+
+            <Input placeholder="Beschrijving" multiline={true} onChangeText={setDescription}/>
+
+
+            <ImagePicker />
+
+
+            <Pressable
+                className=" mt-6 mb-20 p-2 bg-neutral-300 flex justify-center items-center"
+                onPress={handleSubmit}
+            >
+                <Text className="font-bold text-lg">
+                    Post
+                </Text>
+            </Pressable>
+        </View>
+    )
+}
+
+export default AddSource
