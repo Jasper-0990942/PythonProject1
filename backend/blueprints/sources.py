@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_cors import cross_origin
 
-from backend.models.source_model import Sources
+from models.source_model import Sources
 
 sources_bp = Blueprint('sources_bp', __name__)
 

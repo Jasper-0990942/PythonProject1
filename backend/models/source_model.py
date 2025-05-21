@@ -1,5 +1,7 @@
 from flask import jsonify
+
 from models.database_connection import Database
+
 
 class Sources:
     def __init__(self):
