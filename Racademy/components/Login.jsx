@@ -1,9 +1,31 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
-const [username, setUsername] = useState('');
-const [password, setPassword] = useState('');
 
 function Login(props) {
+  const [username, setUsername] = useState('');
+const [password, setPassword] = useState('');
+const handleLogin = async () => {
+  try {
+    const response = await fetch('http://145.137.66.255:5000/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      alert('Login successful!');
+    } else {
+      alert(data.message || 'Invalid credentials');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Login failed. Please try again.');
+  }
+};
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -22,37 +44,13 @@ function Login(props) {
           value={password}
           onChangeText={setPassword}
         />
-        <Pressable style={styles.buttonContainer}>
+        <Pressable style={styles.buttonContainer} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const handleLogin = async () => {
-  try {
-    const response = await fetch('http://192.168.1.100:5000/', {  // Replace with your computer’s IP
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      alert('Login successful!');
-      // Navigate to another screen if needed
-    } else {
-      alert(data.message || 'Invalid credentials');
-    }
-  } catch (error) {
-    console.error(error);
-    alert('Login failed. Please try again.');
-  }
-};
 
 
 const styles = StyleSheet.create({
@@ -69,8 +67,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     width: '100%',
     maxWidth: 400,
-    elevation: 5, // for Android shadow
-    shadowColor: '#000', // for iOS shadow
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
