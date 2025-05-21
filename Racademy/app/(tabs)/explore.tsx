@@ -7,16 +7,18 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Home from "@/features/Home/Home";
+import AddSource from "@/features/createSource/components/AddSource";
 
 export default function Explore() {
   return (
       <SafeAreaView className="flex-1 bg-white items-center ">
-        <View className= "w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full align-center">
+            <View>
 
-            <Home />
+                <AddSource />
 
-        </View>
+            </View>
       </SafeAreaView>
+
   );
 }
 

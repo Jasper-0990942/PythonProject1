@@ -14,7 +14,7 @@ function Home() {
 
 
     return (
-        <View className="">
+        <View className="w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full justify-center">
             <FlatList
                 data={ sources }
                 keyExtractor={ item => item.id}

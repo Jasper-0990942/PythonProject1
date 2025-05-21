@@ -16,7 +16,7 @@ def create_source():
     print(request.json)
     sources_model = Sources()
     new_source = sources_model.add_sources(user_id, title, description, link, isbn)
-    return new_source, 201
+    return {'Successful!': new_source, 'succes': True} , 201
 
 @sources_bp.get('/')
 @cross_origin()
