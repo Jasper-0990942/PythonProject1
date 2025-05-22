@@ -11,7 +11,7 @@ export default function HomeScreen() {
         <Registratiescherm/>
 
       {/*<ScrollView className="flex-1 bg-white">*/}
-      {/*  <AddSource />*/}
+      {/*{  <AddSource /> }*/}
       {/*</ScrollView>*/}
 
         </>

@@ -22,28 +22,32 @@ export default function Registratiescherm() {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Registreren</Text>
+            <Text className="text-s">Naam:</Text>
             <TextInput style={styles.input}
             placeholder={'Naam'}
             value={name}
             onChangeText={setName}>
             </TextInput>
+            <Text className="text-s">Email:</Text>
             <TextInput style={styles.input}
             placeholder={'Email'}
             value={email}
             onChangeText={setEmail}>
             </TextInput>
+            <Text className="text-s">Wachtwoord:</Text>
             <TextInput style={styles.input}
             placeholder={'Wachtwoord'}
             value={password}
             onChangeText={setPassword}>
             </TextInput>
+            <Text className="text-s">Herhaal uw wachtwoord:</Text>
             <TextInput style={styles.input}
             placeholder={'Wachtwoord'}
             value={confirmPassword}
             onChangeText={setConfirmPassword}>
             </TextInput>
 
-            <Pressable className="bg-amber-300 flex-1 justify-center items-center w-40 h-3"  onPress={aanmaakRegistratie}>
+            <Pressable className="bg-amber-300 justify-center items-center w-40 h-10" onPress={aanmaakRegistratie}>
                 <Text>Maak profiel aan</Text>
             </Pressable>
         </View>
