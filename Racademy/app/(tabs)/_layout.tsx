@@ -41,10 +41,10 @@ export default function TabLayout() {
         }}
       />
         <Tabs.Screen
-            name="registratiescherm"
+            name="gebruikersoverzicht"
             options={{
-                title: 'Registreren',
-                tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
+                title: 'OverzichtUsers',
+                tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
             }}
         />
     </Tabs>
