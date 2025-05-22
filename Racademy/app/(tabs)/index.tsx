@@ -4,6 +4,8 @@ import Registratiescherm from "@/components/registratiescherm";
 import AddSource from "@/components/AddSource";
 import Home from "@/components/Home";
 import {ScrollView} from "react-native";
+import OverzichtUsers from "@/app/(tabs)/gebruikersoverzicht";
+import TabLayout from "@/app/(tabs)/_layout";
 
 export default function HomeScreen() {
   return (
@@ -13,7 +15,7 @@ export default function HomeScreen() {
       {/*<ScrollView className="flex-1 bg-white">*/}
       {/*{  <AddSource /> }*/}
       {/*</ScrollView>*/}
-
+        <TabLayout/>
         </>
   );
 }
@@ -41,6 +43,7 @@ export function Hello() {
     return (
         <ScrollView className="flex-1 bg-white">
             <Home />
+            <OverzichtUsers/>
         </ScrollView>
     )
 }
