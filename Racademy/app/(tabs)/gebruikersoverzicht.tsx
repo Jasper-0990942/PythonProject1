@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import {View, Text, FlatList, StyleSheet, ScrollView} from 'react-native';
 
+
+
+export function UserOverview() {
+    return (
+        <ScrollView className="flex-1 bg-white">
+            <OverzichtUsers/>
+        </ScrollView>
+    )
+}
 export default function OverzichtUsers() {
     const [users, setUsers] = useState([
         { id: '1', name: 'Johan Bakayoko', email: 'johan@bakayoko.com' },
