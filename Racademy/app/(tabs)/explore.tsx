@@ -6,8 +6,8 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import Home from "@/features/Home/Home";
-import AddSource from "@/features/createSource/components/AddSource";
+import Home from "@/components/Home";
+import AddSource from "@/components/AddSource";
 
 export default function Explore() {
   return (
