@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_cors import cross_origin
 
-from backend.models.source_model import Sources
+from models.source_model import Sources
 
 sources_bp = Blueprint('sources_bp', __name__)
 
@@ -16,7 +16,7 @@ def create_source():
     print(request.json)
     sources_model = Sources()
     new_source = sources_model.add_sources(user_id, title, description, link, isbn)
-    return {'Successful!': new_source, 'succes': True} , 201
+    return {'Successful!': new_source, 'success': True} , 201
 
 @sources_bp.get('/')
 @cross_origin()

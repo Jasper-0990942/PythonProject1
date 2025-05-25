@@ -3,17 +3,17 @@ import {useState} from "react";
 import Input from "@/features/createSource/components/Input";
 import ImageFileIcon from "@/assets/images/image-file-icon.png";
 import ImagePicker from "@/features/createSource/components/ImagePicker";
+import { useRouter } from 'expo-router'
+
+const router = useRouter()
 
 function AddSource () {
     const [sourceType, setSourceType] = useState("link"); // link or book
 
-    let initialValue = "link"
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [link, setLink] = useState("");
     const [isbn, setIsbn] = useState("");
-    const [PressableText, setPressableText] = useState(initialValue)
-
 
     function handleSubmit() {
 
@@ -30,27 +30,27 @@ function AddSource () {
             })
         })
             .then(response => response.json())
-            .then(data => {if (data['succes']) {alert('succesvol')} })
+            .then(data => {
+                if (data.success) {
+                    router.push('/')
+                }
+            })
 
-
-        }
-
-        function ClickText () {
-            setPressableText('isbn')
-    }
+                }
 
 
 
     return (
         <View className=" w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full justify-center">
 
-            <Text className="text-3xl font-bold mb-11 text-center">Bronnen</Text>
-            <Pressable onPress={ClickText}>{PressableText}</Pressable>
+            <Text className="text-3xl font-bold mb-3 text-center">Bronnen</Text>
+            <Pressable onPress={() => setSourceType("book")}>Link</Pressable>
+            <Pressable onPress={() => setSourceType("link")}>Boek</Pressable>
             <Input placeholder="Titel" onChangeText={setTitle}/>
 
 
             {
-                sourceType === "link"
+                sourceType === 'link'
                     ? <Input placeholder="ISBN" onChangeText={setIsbn}/>
                     : <Input placeholder="Link" onChangeText={setLink}/>
             }
@@ -64,7 +64,7 @@ function AddSource () {
 
 
             <Pressable
-                className=" mt-6 mb-20 p-2 bg-neutral-300 flex justify-center items-center"
+                className=" mt-6 mb-11 p-2 bg-neutral-300 flex justify-center items-center"
                 onPress={handleSubmit}
             >
                 <Text className="font-bold text-lg">
