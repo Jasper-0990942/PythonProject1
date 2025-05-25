@@ -1,0 +1,6 @@
+services:
+  wp4-backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+
