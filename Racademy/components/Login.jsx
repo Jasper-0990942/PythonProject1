@@ -6,7 +6,7 @@ function Login(props) {
 const [password, setPassword] = useState('');
 const handleLogin = async () => {
   try {
-    const response = await fetch('http://145.137.66.255:5000/', {
+    const response = await fetch('http://192.168.1.143/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
