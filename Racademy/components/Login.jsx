@@ -2,47 +2,50 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 
 function Login(props) {
-  const [username, setUsername] = useState('');
-const [password, setPassword] = useState('');
-const handleLogin = async () => {
-  try {
-    const response = await fetch('http://192.168.1.143/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
+  const [email, setEmail] = useState('');
+  const [wachtwoord, setWachtwoord] = useState('');
 
-    const data = await response.json();
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://192.168.1.143:5000/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, wachtwoord }),
+      });
 
-    if (response.ok && data.success) {
-      alert('Login successful!');
-    } else {
-      alert(data.message || 'Invalid credentials');
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Login successful!');
+      } else {
+        alert(data.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Login failed. Please try again.');
     }
-  } catch (error) {
-    console.error(error);
-    alert('Login failed. Please try again.');
-  }
-};
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           autoCapitalize="none"
-          value={username}
-          onChangeText={setUsername}
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Wachtwoord"
           secureTextEntry
-          value={password}
-          onChangeText={setPassword}
+          value={wachtwoord}
+          onChangeText={setWachtwoord}
         />
         <Pressable style={styles.buttonContainer} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
@@ -51,7 +54,6 @@ const handleLogin = async () => {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

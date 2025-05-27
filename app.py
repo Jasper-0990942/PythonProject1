@@ -3,7 +3,7 @@ import sqlite3
 
 app = Flask(__name__)
 app.secret_key = 'biem'
-DATABASE = 'database.db'
+DATABASE = 'database/database.db'
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
@@ -16,16 +16,16 @@ def login():
     if not data:
         return jsonify({'success': False, 'message': 'No data received'}), 400
 
-    username = data.get('username')
-    password = data.get('password')
+    email = data.get('email')
+    wachtwoord = data.get('wachtwoord')
 
-    print(f"Received username: {username}, password: {password}")
+    print(f"Received email: {email}, wachtwoord: {wachtwoord}")
 
     conn = get_db_connection()
 
     beheerder = conn.execute(
-        'SELECT * FROM beheerders WHERE username = ? AND password = ?',
-        (username, password)
+        'SELECT * FROM beheerders WHERE email = ? AND wachtwoord = ?',
+        (email, wachtwoord)
     ).fetchone()
 
     if beheerder:
@@ -33,8 +33,8 @@ def login():
         return jsonify({"success": True, "type": "beheerder", "message": "Login successful"})
 
     gebruiker = conn.execute(
-        'SELECT * FROM users WHERE username = ? AND password = ?',
-        (username, password)
+        'SELECT * FROM gebruikers WHERE email = ? AND wachtwoord = ?',
+        (email, wachtwoord)
     ).fetchone()
     conn.close()
 
@@ -45,4 +45,3 @@ def login():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
-
