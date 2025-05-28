@@ -7,6 +7,7 @@ import ImageFileIcon from "@/assets/images/image-file-icon.png";
 
 export default function ImagePicker () {
   const [image, setImage] = useState(null);
+  const [alert, setAlert] = useState('');
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -17,15 +18,19 @@ export default function ImagePicker () {
       quality: 1,
     })
 
-    if (!result.canceled) {
+
+  if (!result.canceled) {
       setImage(result.assets[0].uri)
-    } else {
-      alert("je hebt geen img geselecteerd")
-    }
+      setAlert(null)}
+  else if (image === null)
+    {setAlert('Geen afbeelding geselecteerd')}
   }
+
+
 
   return (
     <View className="mt-5">
+      <Text>{alert}</Text>
       <Pressable
           className="border border-neutral-300 rounded-md p-5"
           title="Pick an image from camera roll"
@@ -48,4 +53,3 @@ export default function ImagePicker () {
     </View>
   )
 };
-

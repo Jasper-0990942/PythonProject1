@@ -4,12 +4,12 @@ import Input from "@/features/createSource/components/Input";
 import ImageFileIcon from "@/assets/images/image-file-icon.png";
 import ImagePicker from "@/features/createSource/components/ImagePicker";
 import { useRouter } from 'expo-router'
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const router = useRouter()
 
 function AddSource () {
     const [sourceType, setSourceType] = useState("link"); // link or book
-
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [link, setLink] = useState("");
@@ -58,6 +58,7 @@ function AddSource () {
             <Input placeholder="Tags"/>
 
             <Input placeholder="Beschrijving" multiline={true} onChangeText={setDescription}/>
+
 
 
             <ImagePicker />
