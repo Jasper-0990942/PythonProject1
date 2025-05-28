@@ -8,16 +8,16 @@ class Sources:
         database = Database()
         self.cursor, self.con = database.connect_db()
 
-    def add_sources(self, user_id, title, description, link, isbn):
+    def add_sources(self, user_id, title, description, link, isbn, image):
         result = self.cursor.execute(
-                '''INSERT INTO sources (user_id, title, description, link, ISBN) VALUES (?, ?, ?, ?,?)''', (user_id, title, description, link, isbn))
+                '''INSERT INTO sources (user_id, title, description, link, ISBN, img) VALUES (?, ?, ?, ?, ?, ?)''', (user_id, title, description, link, isbn, image))
         self.con.commit()
         print(result)
         return dict(result)
 
     def get_all_sources(self):
         result = self.cursor.execute(
-            '''SELECT sources.title, sources.description, sources.link, sources.ISBN, users.display_name, sources.date_created, users.studentnr FROM sources JOIN users ON sources.user_id = users.user_id''').fetchall()
+            '''SELECT sources.title, sources.description, sources.link, sources.ISBN, users.display_name, sources.date_created, sources.img, users.studentnr FROM sources JOIN users ON sources.user_id = users.user_id''').fetchall()
         print(result)
         sources = []
         for row in result:

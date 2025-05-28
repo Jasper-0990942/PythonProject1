@@ -65,7 +65,7 @@ class WP4DatabaseGenerator:
              description TEXT,
              link TEXT,
              ISBN INTEGER,
-             img_id INTEGER,
+             img TEXT,
              date_created DATETIME DEFAULT CURRENT_TIMESTAMP,          
              FOREIGN KEY (user_id) REFERENCES users (user_id),
              FOREIGN KEY (sourcetype_id) REFERENCES sourcetypes (sourcetype_id));

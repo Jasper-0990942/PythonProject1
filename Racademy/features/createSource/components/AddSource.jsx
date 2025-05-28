@@ -6,18 +6,23 @@ import ImagePicker from "@/features/createSource/components/ImagePicker";
 import { useRouter } from 'expo-router'
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const router = useRouter()
 
 function AddSource () {
+    const router = useRouter();
+    const [image, setImage] = useState(null);
     const [sourceType, setSourceType] = useState("link"); // link or book
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [link, setLink] = useState("");
     const [isbn, setIsbn] = useState("");
 
+    const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+
+    console.log(backendUrl)
+
     function handleSubmit() {
 
-        fetch('http://localhost:5000/sources/', {
+        fetch(`${backendUrl}/sources/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -26,7 +31,8 @@ function AddSource () {
                 title,
                 description,
                 link,
-                isbn
+                isbn,
+                image
             })
         })
             .then(response => response.json())
@@ -37,8 +43,6 @@ function AddSource () {
             })
 
                 }
-
-
 
     return (
         <View className=" w-11/12 sm:w-96 bg-white p-3 shadow-md shadow-neutral-200 h-full justify-center">
@@ -59,9 +63,7 @@ function AddSource () {
 
             <Input placeholder="Beschrijving" multiline={true} onChangeText={setDescription}/>
 
-
-
-            <ImagePicker />
+            <ImagePicker setImage={setImage} image={image}/>
 
 
             <Pressable

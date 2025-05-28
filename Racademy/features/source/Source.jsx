@@ -1,5 +1,4 @@
-import {Link} from "expo-router";
-import {Pressable, Text, View} from "react-native";
+import {Pressable, Text, View, Image, ImageBackground} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useState} from "react";
 
@@ -20,9 +19,14 @@ function Source({ source }) {
                 <Text className="mb-2 color-gray-600">{ source.date_created }</Text>
                 <Text>{ source.title }</Text>
                 <Text>{ source.description }</Text>
-                <Text>{ source.ISBN}</Text>
+                <Text>{ source.isbn}</Text>
                 <Text>{ source.link }</Text>
+                <Image source={{ uri: source.img }} style={{width: 500, height: '100%'}} resizeMode="contain"/>
+
             </View>
+
+
+
             <View className="flex-row flex ">
                 {/*for every star seperate if statement, to control the rating */}
 

@@ -13,9 +13,10 @@ def create_source():
     description = request.json["description"]
     link = request.json["link"]
     isbn = request.json["isbn"]
+    image = request.json["image"]
     print(request.json)
     sources_model = Sources()
-    new_source = sources_model.add_sources(user_id, title, description, link, isbn)
+    new_source = sources_model.add_sources(user_id, title, description, link, isbn, image)
     return {'Successful!': new_source, 'success': True} , 201
 
 @sources_bp.get('/')

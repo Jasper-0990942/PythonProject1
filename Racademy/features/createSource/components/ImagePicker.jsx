@@ -5,8 +5,7 @@ import {launchImageLibraryAsync} from "expo-image-picker";
 import ImageFileIcon from "@/assets/images/image-file-icon.png";
 
 
-export default function ImagePicker () {
-  const [image, setImage] = useState(null);
+export default function ImagePicker ({image, setImage}) {
   const [alert, setAlert] = useState('');
 
   const pickImage = async () => {
@@ -17,6 +16,8 @@ export default function ImagePicker () {
       aspect: [4, 3],
       quality: 1,
     })
+    console.log(result)
+    console.log(result.assets[0].uri)
 
 
   if (!result.canceled) {
@@ -39,7 +40,7 @@ export default function ImagePicker () {
             {
 
               image
-                ? <Image source={{ uri: image }} style={{width: 400, height: '100%'}} resizeMode="contain" />
+                ? <Image source={{ uri: image }} style={{width: 400, height: '100%'}} resizeMode="contain"/>
                 :
                 <Image className=""
                     style={{width: 400, height: '100%'}}
