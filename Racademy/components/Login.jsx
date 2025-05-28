@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 
-function Login(props) {
+function Login() {
   const [email, setEmail] = useState('');
+  const [displayNaam, setDisplayNaam] = useState('');
   const [wachtwoord, setWachtwoord] = useState('');
 
   const handleLogin = async () => {
+    const body = {
+      email: email.trim() || undefined,
+      display_naam: displayNaam.trim() || undefined,
+      wachtwoord: wachtwoord.trim(),
+    };
+
     try {
       const response = await fetch('http://192.168.1.143:5000/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, wachtwoord }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert('Login successful!');
+        alert(`Login successful als ${data.type}!`);
       } else {
         alert(data.message || 'Invalid credentials');
       }
@@ -32,13 +39,20 @@ function Login(props) {
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
+
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="Email (voor beheerders)"
           autoCapitalize="none"
-          keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Gebruikersnaam (voor gebruikers)"
+          autoCapitalize="none"
+          value={displayNaam}
+          onChangeText={setDisplayNaam}
         />
         <TextInput
           style={styles.input}

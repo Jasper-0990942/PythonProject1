@@ -10,6 +10,10 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+@app.route('/', methods=['GET'])
+def index():
+    return "API is running", 200
+
 @app.route('/', methods=['POST'])
 def login():
     data = request.get_json()
@@ -18,6 +22,7 @@ def login():
 
     email = data.get('email')
     wachtwoord = data.get('wachtwoord')
+    display_naam = data.get('display_naam')
 
     print(f"Received email: {email}, wachtwoord: {wachtwoord}")
 
@@ -33,7 +38,7 @@ def login():
         return jsonify({"success": True, "type": "beheerder", "message": "Login successful"})
 
     gebruiker = conn.execute(
-        'SELECT * FROM gebruikers WHERE email = ? AND wachtwoord = ?',
+        'SELECT * FROM gebruikers WHERE display_naam = ? AND wachtwoord = ?',
         (email, wachtwoord)
     ).fetchone()
     conn.close()
