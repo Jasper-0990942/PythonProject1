@@ -1,8 +1,35 @@
 // ProfileScreen.jsx
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
 
+
+
+
 export default function ProfileScreen() {
+
+  const [isEditing, setIsEditing] = useState(false);
+const [profile, setProfile] = useState({
+  voornaam: 'Luuk',
+  achternaam: 'De jong',
+  email: '0990941@hr.nl'
+});
+
+const [resources,setresources] = useState([
+  { id: 1, title: 'Javascript cursus'}
+]);
+
+const  handleEditResource = (id) => {
+  console.log('Edit resource, id');
+};
+
+  const handleDeleteResource = (id) => {
+    setResources((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleSaveProfile = () => {
+    setIsEditing(false)
+    console.log('Saving profile:', profile)
+  };
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Luuk</Text>

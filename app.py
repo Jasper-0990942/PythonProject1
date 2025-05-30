@@ -48,5 +48,39 @@ def login():
 
     return jsonify({"success": False, "message": "Invalid credentials"}), 401
 
+@app.route('/delete_resource', methods=['post'])
+def delete_resource():
+    data = request.get_json()
+    resource_id = data.get('resource_id')
+
+    if not resource_id:
+        return jsonify({'success': False, 'message': 'No data received'}), 400
+
+    conn = get_db_connection()
+    conn.execute("DELETE FROM bronnen WHERE id = ?", (resource_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "Resource deleted"}), 200
+
+@app.route('/update_profile', methods=['post'])
+def update_profile():
+    data = request.get_json()
+    email = data.get('email')
+    voornaam = data.get('voornaam')
+    achternaam = data.get('achternaam')
+
+    if not email:
+        return jsonify({'success': False, 'message': 'No data received'}), 400
+
+    conn = get_db_connection()
+    conn.execute("UPDATE gebruikers SET voornaam = ? WHERE email = ?",
+                 (voornaam,achternaam, email))
+
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "Profile updated"}), 200
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
