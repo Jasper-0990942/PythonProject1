@@ -1,26 +1,29 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
-import {defaultProps as resource} from "react-native-web/src/modules/forwardedProps";
 
 
 
 
 export default function ProfileScreen() {
 
+  const [resources, setResources] = useState([
+  { id: 1, title: 'Javascript cursus' },
+]);
+
+  const [editingResourceId, setEditingResourceId] = useState(null);
+  const [editedResourceTitle, setEditedResourceTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    voornaam: 'Luuk',
-    achternaam: 'De jong',
-    email: '0990941@hr.nl'
+
   });
 
-  const [resources, setresources] = useState([
-    {id: 1, title: 'Javascript cursus'}
-  ]);
 
-  const handleEditResource = (id) => {
-    console.log('Edit resource, id');
-  };
+const handleEditResource = (id) => {
+  const resource = resources.find(r => r.id === id);
+  setEditingResourceId(id);
+  setEditedResourceTitle(resource.title);
+};
+
 
 const handleDeleteResource = async (id) => {
   try {
@@ -32,7 +35,7 @@ const handleDeleteResource = async (id) => {
 
     const json = await response.json();
     if (json.success) {
-      setresources((prev) => prev.filter((r) => r.id !== id));
+      setResources((prev) => prev.filter((r) => r.id !== id));
     } else {
       console.log('Failed to delete:', json.message);
     }
@@ -42,10 +45,10 @@ const handleDeleteResource = async (id) => {
 };
 
 
-  const handleSaveProfile = async () => {
+ const handleSaveProfile = async () => {
   setIsEditing(false);
   try {
-    const response = await fetch('http://localhost:3000/update-profile', {
+    const response = await fetch('http://localhost:3000/update_profile', {
       method: 'POST',
       headers: {'content-type': 'application/json'},
       body: JSON.stringify(profile)
@@ -58,7 +61,7 @@ const handleDeleteResource = async (id) => {
       console.log('Profile failed with error', json.message);
     }
   } catch (error) {
-    console.error('Error while saving profile', error)
+    console.error('Error while saving profile', error);
   }
 };
 
@@ -101,25 +104,53 @@ const handleDeleteResource = async (id) => {
 </Pressable>
 
 
-      <View style={styles.card}>
-        <Text style={styles.subheading}>Door mij toegevoegde bronnen:</Text>
+{resources.map(resource => (
+  <View key={resource.id} style={styles.resourceRow}>
+    {editingResourceId === resource.id ? (
+      <TextInput
+        style={styles.input}
+        value={editedResourceTitle}
+        onChangeText={setEditedResourceTitle}
+      />
+    ) : (
+      <Text style={styles.resourceText}>{resource.title}</Text>
+    )}
 
-        <View style={styles.resourceRow}>
-          <Text style={styles.resourceText}>{resource.title}</Text>
-          <View style={styles.buttonGroup}>
-            <Pressable style={styles.secondaryButton}
-              onPress={() => {handleEditResource(resource.id)}}
-              >
-              <Text style={styles.buttonText}>Bewerken</Text>
-            </Pressable>
-            <Pressable style={styles.dangerButton}
-              onpress={() => {handleDeleteResource(resource.id)}}
-              >
-              <Text style={styles.buttonText}>Verwijderen</Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
+    <View style={styles.buttonGroup}>
+      {editingResourceId === resource.id ? (
+        <Pressable
+          style={styles.primaryButton}
+          onPress={() => {
+            // Save changes
+            setResources(prev =>
+              prev.map(r =>
+                r.id === resource.id ? { ...r, title: editedResourceTitle } : r
+              )
+            );
+            setEditingResourceId(null);
+          }}
+        >
+          <Text style={styles.buttonText}>Opslaan</Text>
+        </Pressable>
+      ) : (
+        <Pressable
+          style={styles.secondaryButton}
+          onPress={() => handleEditResource(resource.id)}
+        >
+          <Text style={styles.buttonText}>Bewerken</Text>
+        </Pressable>
+      )}
+
+      <Pressable
+        style={styles.dangerButton}
+        onPress={() => handleDeleteResource(resource.id)}
+      >
+        <Text style={styles.buttonText}>Verwijderen</Text>
+      </Pressable>
+    </View>
+  </View>
+))}
+
     </ScrollView>
   );
 }

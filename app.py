@@ -73,8 +73,8 @@ def update_profile():
         return jsonify({'success': False, 'message': 'No data received'}), 400
 
     conn = get_db_connection()
-    conn.execute("UPDATE gebruikers SET voornaam = ? WHERE email = ?",
-                 (voornaam,achternaam, email))
+    conn.execute("UPDATE gebruikers SET voornaam = ?, achternaam = ? WHERE email = ?",
+                 (voornaam, achternaam, email))
 
     conn.commit()
     conn.close()
