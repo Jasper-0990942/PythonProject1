@@ -25,3 +25,19 @@ def get_all_sources():
     sources_model = Sources()
     sources = sources_model.get_all_sources()
     return {'sources': sources}
+
+@sources_bp.get('/')
+@cross_origin()
+def get_source_by_id(source_id):
+    sources_model = Sources()
+
+@sources_bp.post('/rating', strict_slashes=False)
+@cross_origin()
+def save_rating():
+    print(request.json)
+    source_id = request.json["source_id"]
+    user_id = 1
+    rating = request.json["rating"]
+    sources_model = Sources()
+    source_rating = sources_model.save_rating(source_id, user_id, rating)
+    return {'Success': source_rating, 'success': True}

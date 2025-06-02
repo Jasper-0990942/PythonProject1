@@ -23,7 +23,7 @@ function AddSource () {
     function handleSubmit() {
 
         fetch(`${backendUrl}/sources/`, {
-            method: "POST",
+            method: 'UPDATE',
             headers: {
                 "Content-Type": "application/json"
             },
