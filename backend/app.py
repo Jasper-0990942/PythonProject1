@@ -1,11 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
+
+from backend.blueprints.users import users_bp
 from blueprints.sources import sources_bp
 
 app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(sources_bp, url_prefix="/sources")
+app.register_blueprint(users_bp, url_prefix="/users")
 
 
 
