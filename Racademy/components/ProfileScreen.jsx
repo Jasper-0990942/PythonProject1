@@ -1,6 +1,6 @@
-// ProfileScreen.jsx
 import React, {useState} from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
+import {defaultProps as resource} from "react-native-web/src/modules/forwardedProps";
 
 
 
@@ -8,57 +8,113 @@ import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-
 export default function ProfileScreen() {
 
   const [isEditing, setIsEditing] = useState(false);
-const [profile, setProfile] = useState({
-  voornaam: 'Luuk',
-  achternaam: 'De jong',
-  email: '0990941@hr.nl'
-});
+  const [profile, setProfile] = useState({
+    voornaam: 'Luuk',
+    achternaam: 'De jong',
+    email: '0990941@hr.nl'
+  });
 
-const [resources,setresources] = useState([
-  { id: 1, title: 'Javascript cursus'}
-]);
+  const [resources, setresources] = useState([
+    {id: 1, title: 'Javascript cursus'}
+  ]);
 
-const  handleEditResource = (id) => {
-  console.log('Edit resource, id');
+  const handleEditResource = (id) => {
+    console.log('Edit resource, id');
+  };
+
+const handleDeleteResource = async (id) => {
+  try {
+    const response = await fetch('delete_resource', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ resource_id: id }),
+    });
+
+    const json = await response.json();
+    if (json.success) {
+      setresources((prev) => prev.filter((r) => r.id !== id));
+    } else {
+      console.log('Failed to delete:', json.message);
+    }
+  } catch (err) {
+    console.error('Delete error:', err);
+  }
 };
 
-  const handleDeleteResource = (id) => {
-    setResources((prev) => prev.filter((r) => r.id !== id));
-  };
 
-  const handleSaveProfile = () => {
-    setIsEditing(false)
-    console.log('Saving profile:', profile)
-  };
+  const handleSaveProfile = async () => {
+  setIsEditing(false);
+  try {
+    const response = await fetch('http://localhost:3000/update-profile', {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify(profile)
+    });
+
+    const json = await response.json();
+    if (json.success) {
+      console.log('Profile successfully updated', profile);
+    } else {
+      console.log('Profile failed with error', json.message);
+    }
+  } catch (error) {
+    console.error('Error while saving profile', error)
+  }
+};
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Luuk</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Voornaam</Text>
-        <TextInput style={styles.input} value="Luuk" />
+      <TextInput
+        style={styles.input}
+        value={profile.voornaam}
+        onChangeText={(text) => setProfile({...profile, voornaam: text})}
+        />
 
-        <Text style={styles.label}>Achternaam</Text>
-        <TextInput style={styles.input} value="De jong" />
+      <TextInput
+        style={styles.input}
+        value={profile.achternaam}
+        onChangeText={(text) => setProfile({...profile, achternaam: text})}
+        />
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput style={styles.input} value="0990941@hr.nl" keyboardType="email-address" />
+      <TextInput
+        style={styles.input}
+        value={profile.email}
+        onChangeText={(text) => setProfile({...profile, email: text})}
+        />
 
-        <Pressable style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Bewerken</Text>
-        </Pressable>
-      </View>
+
+<Pressable
+  style={styles.primaryButton}
+  onPress={() => {
+    if (isEditing) {
+      handleSaveProfile();
+    } else {
+      setIsEditing(true);
+    }
+  }}
+>
+  <Text style={styles.primaryButtonText}>
+    {isEditing ? 'Opslaan' : 'Bewerken'}
+  </Text>
+</Pressable>
+
 
       <View style={styles.card}>
         <Text style={styles.subheading}>Door mij toegevoegde bronnen:</Text>
 
         <View style={styles.resourceRow}>
-          <Text style={styles.resourceText}>Javascript cursus</Text>
+          <Text style={styles.resourceText}>{resource.title}</Text>
           <View style={styles.buttonGroup}>
-            <Pressable style={styles.secondaryButton}>
+            <Pressable style={styles.secondaryButton}
+              onPress={() => {handleEditResource(resource.id)}}
+              >
               <Text style={styles.buttonText}>Bewerken</Text>
             </Pressable>
-            <Pressable style={styles.dangerButton}>
+            <Pressable style={styles.dangerButton}
+              onpress={() => {handleDeleteResource(resource.id)}}
+              >
               <Text style={styles.buttonText}>Verwijderen</Text>
             </Pressable>
           </View>
