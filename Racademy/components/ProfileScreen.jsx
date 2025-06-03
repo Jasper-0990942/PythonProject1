@@ -6,6 +6,7 @@ import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-
 
 export default function ProfileScreen({ route }) {
   const userData = route?.params?.userData;
+  console.log('userData ontvangen:', userData);
 
   const [profile, setProfile] = useState({
     email: '',
