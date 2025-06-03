@@ -1,8 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
-
-
-
+import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
 
 export default function ProfileScreen({ route }) {
   const userData = route?.params?.userData;
@@ -17,9 +14,8 @@ export default function ProfileScreen({ route }) {
   const [isEditing, setIsEditing] = useState(false);
   const [resources, setResources] = useState([]);
   const [editedResourceTitle, setEditedResourceTitle] = useState('');
-const [editingResourceId, setEditingResourceId] = useState(null);
-
-
+  const [editingResourceId, setEditingResourceId] = useState(null);
+  const [originalEmail, setOriginalEmail] = useState('');
 
   useEffect(() => {
     if (userData) {
@@ -28,59 +24,76 @@ const [editingResourceId, setEditingResourceId] = useState(null);
         voornaam: userData.voornaam || '',
         achternaam: userData.achternaam || '',
       });
+      setOriginalEmail(userData.email || '');
     }
   }, [userData]);
 
+  const handleEditResource = (id) => {
+    const resource = resources.find(r => r.id === id);
+    setEditingResourceId(id);
+    setEditedResourceTitle(resource.title);
+  };
 
+  const handleDeleteResource = async (id) => {
+    try {
+      const response = await fetch('delete_resource', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ resource_id: id }),
+      });
 
-
-
-const handleEditResource = (id) => {
-  const resource = resources.find(r => r.id === id);
-  setEditingResourceId(id);
-  setEditedResourceTitle(resource.title);
-};
-
-
-const handleDeleteResource = async (id) => {
-  try {
-    const response = await fetch('delete_resource', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ resource_id: id }),
-    });
-
-    const json = await response.json();
-    if (json.success) {
-      setResources((prev) => prev.filter((r) => r.id !== id));
-    } else {
-      console.log('Failed to delete:', json.message);
+      const json = await response.json();
+      if (json.success) {
+        setResources((prev) => prev.filter((r) => r.id !== id));
+      } else {
+        console.log('Failed to delete:', json.message);
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
     }
-  } catch (err) {
-    console.error('Delete error:', err);
-  }
-};
+  };
 
+  const handleSaveProfile = async () => {
+    console.log("handleSaveProfile called with profile:", profile);
+    setIsEditing(false);
 
- const handleSaveProfile = async () => {
-  setIsEditing(false);
-  try {
-    const response = await fetch('http://localhost:3000/update_profile', {
-      method: 'POST',
-      headers: {'content-type': 'application/json'},
-      body: JSON.stringify(profile)
-    });
+    try {
+      const response = await fetch('http://192.168.1.143:5000/update_profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          original_email: originalEmail,
+          email: profile.email,
+          voornaam: profile.voornaam,
+          achternaam: profile.achternaam,
+        }),
+      });
 
-    const json = await response.json();
-    if (json.success) {
-      console.log('Profile successfully updated', profile);
-    } else {
-      console.log('Profile failed with error', json.message);
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Non-OK response:", text);
+        Alert.alert("Fout", `Server reageerde met status ${response.status}`);
+        return;
+      }
+
+      const json = await response.json();
+      console.log("Response JSON:", json);
+
+      if (json.success) {
+        console.log('Profiel succesvol bijgewerkt', profile);
+        setOriginalEmail(profile.email);
+        Alert.alert("Succes", "Profiel is bijgewerkt.");
+      } else {
+        console.log('Profiel bijwerken mislukt:', json.message);
+        Alert.alert("Fout", json.message || "Profiel bijwerken mislukt.");
+      }
+    } catch (error) {
+      console.error('Fout bij opslaan profiel:', error);
+      Alert.alert("Fout", "Er is een fout opgetreden bij het opslaan van het profiel.");
     }
-  } catch (error) {
-    console.error('Error while saving profile', error);
-  }
-};
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -90,84 +103,83 @@ const handleDeleteResource = async (id) => {
         style={styles.input}
         value={profile.voornaam}
         onChangeText={(text) => setProfile({...profile, voornaam: text})}
-        />
+        editable={isEditing}
+      />
 
       <TextInput
         style={styles.input}
         value={profile.achternaam}
         onChangeText={(text) => setProfile({...profile, achternaam: text})}
-        />
+        editable={isEditing}
+      />
 
       <TextInput
         style={styles.input}
         value={profile.email}
         onChangeText={(text) => setProfile({...profile, email: text})}
-        />
-
-
-<Pressable
-  style={styles.primaryButton}
-  onPress={() => {
-    if (isEditing) {
-      handleSaveProfile();
-    } else {
-      setIsEditing(true);
-    }
-  }}
->
-  <Text style={styles.primaryButtonText}>
-    {isEditing ? 'Opslaan' : 'Bewerken'}
-  </Text>
-</Pressable>
-
-
-{resources.map(resource => (
-  <View key={resource.id} style={styles.resourceRow}>
-    {editingResourceId === resource.id ? (
-      <TextInput
-        style={styles.input}
-        value={editedResourceTitle}
-        onChangeText={setEditedResourceTitle}
+        editable={isEditing}
       />
-    ) : (
-      <Text style={styles.resourceText}>{resource.title}</Text>
-    )}
-
-    <View style={styles.buttonGroup}>
-      {editingResourceId === resource.id ? (
-        <Pressable
-          style={styles.primaryButton}
-          onPress={() => {
-            // Save changes
-            setResources(prev =>
-              prev.map(r =>
-                r.id === resource.id ? { ...r, title: editedResourceTitle } : r
-              )
-            );
-            setEditingResourceId(null);
-          }}
-        >
-          <Text style={styles.buttonText}>Opslaan</Text>
-        </Pressable>
-      ) : (
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={() => handleEditResource(resource.id)}
-        >
-          <Text style={styles.buttonText}>Bewerken</Text>
-        </Pressable>
-      )}
 
       <Pressable
-        style={styles.dangerButton}
-        onPress={() => handleDeleteResource(resource.id)}
+        style={styles.primaryButton}
+        onPress={() => {
+          if (isEditing) {
+            handleSaveProfile();
+          } else {
+            setIsEditing(true);
+          }
+        }}
       >
-        <Text style={styles.buttonText}>Verwijderen</Text>
+        <Text style={styles.primaryButtonText}>
+          {isEditing ? 'Opslaan' : 'Bewerken'}
+        </Text>
       </Pressable>
-    </View>
-  </View>
-))}
 
+      {resources.map(resource => (
+        <View key={resource.id} style={styles.resourceRow}>
+          {editingResourceId === resource.id ? (
+            <TextInput
+              style={styles.input}
+              value={editedResourceTitle}
+              onChangeText={setEditedResourceTitle}
+            />
+          ) : (
+            <Text style={styles.resourceText}>{resource.title}</Text>
+          )}
+
+          <View style={styles.buttonGroup}>
+            {editingResourceId === resource.id ? (
+              <Pressable
+                style={styles.primaryButton}
+                onPress={() => {
+                  setResources(prev =>
+                    prev.map(r =>
+                      r.id === resource.id ? { ...r, title: editedResourceTitle } : r
+                    )
+                  );
+                  setEditingResourceId(null);
+                }}
+              >
+                <Text style={styles.buttonText}>Opslaan</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                style={styles.secondaryButton}
+                onPress={() => handleEditResource(resource.id)}
+              >
+                <Text style={styles.buttonText}>Bewerken</Text>
+              </Pressable>
+            )}
+
+            <Pressable
+              style={styles.dangerButton}
+              onPress={() => handleDeleteResource(resource.id)}
+            >
+              <Text style={styles.buttonText}>Verwijderen</Text>
+            </Pressable>
+          </View>
+        </View>
+      ))}
     </ScrollView>
   );
 }
@@ -249,7 +261,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 4,
-   },
+  },
   buttonText: {
     color: '#fff',
     fontSize: 16,

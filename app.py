@@ -19,6 +19,7 @@ def index():
 @app.route('/', methods=['POST'])
 def login():
     data = request.get_json()
+    print("Login attempt data:", data)
     login_input = data.get('loginInput')
     wachtwoord = data.get('wachtwoord')
 
@@ -69,20 +70,24 @@ def delete_resource():
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     data = request.get_json()
-    email = data.get('email')
+    original_display_naam = data.get('original_email')
+    new_display_naam = data.get('email')
     voornaam = data.get('voornaam')
     achternaam = data.get('achternaam')
 
-    if not email:
-        return jsonify({'success': False, 'message': 'No data received'}), 400
+    if not original_display_naam:
+        return jsonify({'success': False, 'message': 'Original display_naam is required'}), 400
 
     conn = get_db_connection()
-    conn.execute("UPDATE gebruikers SET voornaam = ?, achternaam = ? WHERE email = ?",
-                 (voornaam, achternaam, email))
-
+    conn.execute(
+        "UPDATE gebruikers SET display_naam = ?, voornaam = ?, achternaam = ? WHERE display_naam = ?",
+        (new_display_naam, voornaam, achternaam, original_display_naam)
+    )
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": "Profile updated"}), 200
+
+
 
 @app.route('/get_resources', methods=['POST'])
 def get_resources():
@@ -98,6 +103,8 @@ def get_resources():
 
     resource_list = [dict(r) for r in resources]
     return jsonify({'success': True, 'resources': resource_list}), 200
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
