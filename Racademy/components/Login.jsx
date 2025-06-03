@@ -7,7 +7,7 @@ function Login() {
   const [wachtwoord, setWachtwoord] = useState('');
   const navigation = useNavigation();
 
-
+  const backendUrl = process.env.EXPO_
 
   const handleLogin = async () => {
   const body = {
@@ -16,7 +16,7 @@ function Login() {
   };
 
     try {
-      const response = await fetch('http://192.168.1.143:5000/', {
+      const response = await fetch(`${backendUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
