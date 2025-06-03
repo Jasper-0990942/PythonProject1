@@ -4,18 +4,34 @@ import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-
 
 
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ route }) {
+  const userData = route?.params?.userData;
 
-  const [resources, setResources] = useState([
-  { id: 1, title: 'Javascript cursus' },
-]);
-
-  const [editingResourceId, setEditingResourceId] = useState(null);
-  const [editedResourceTitle, setEditedResourceTitle] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-
+    email: '',
+    voornaam: '',
+    achternaam: '',
   });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [resources, setResources] = useState([]);
+  const [editedResourceTitle, setEditedResourceTitle] = useState('');
+const [editingResourceId, setEditingResourceId] = useState(null);
+
+
+
+  useEffect(() => {
+    if (userData) {
+      setProfile({
+        email: userData.email || '',
+        voornaam: userData.voornaam || '',
+        achternaam: userData.achternaam || '',
+      });
+    }
+  }, [userData]);
+
+
+
 
 
 const handleEditResource = (id) => {
@@ -67,7 +83,7 @@ const handleDeleteResource = async (id) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Luuk</Text>
+      <Text style={styles.header}>Profiel</Text>
 
       <TextInput
         style={styles.input}
