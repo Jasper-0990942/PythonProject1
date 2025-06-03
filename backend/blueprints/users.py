@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_cors import cross_origin
 from werkzeug.security import generate_password_hash
-from backend.models.user_model import Users
+from models.user_model import Users
 from flask import url_for
 
 

@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from database_connection import Database
+from models.database_connection import Database
 
 class Users:
     def add_user(self, studentnr, fname, lname, password_hash, dateofbirth, status):
