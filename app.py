@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 import sqlite3
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = 'biem'
 DATABASE = 'database/database.db'
 
@@ -17,38 +19,40 @@ def index():
 @app.route('/', methods=['POST'])
 def login():
     data = request.get_json()
-    if not data:
-        return jsonify({'success': False, 'message': 'No data received'}), 400
-
-    email = data.get('email')
+    login_input = data.get('loginInput')
     wachtwoord = data.get('wachtwoord')
-    display_naam = data.get('display_naam')
 
-    print(f"Received email: {email}, wachtwoord: {wachtwoord}")
+    if not login_input or not wachtwoord:
+        return jsonify({'success': False, 'message': 'Login en wachtwoord zijn verplicht'}), 400
 
     conn = get_db_connection()
 
+    # Beheerder login
     beheerder = conn.execute(
         'SELECT * FROM beheerders WHERE email = ? AND wachtwoord = ?',
-        (email, wachtwoord)
+        (login_input, wachtwoord)
     ).fetchone()
 
     if beheerder:
         conn.close()
-        return jsonify({"success": True, "type": "beheerder", "message": "Login successful"})
+        beheerder_data = dict(beheerder)
+        return jsonify({"success": True, "type": "beheerder", **beheerder_data})
 
+    # Gebruiker login
     gebruiker = conn.execute(
         'SELECT * FROM gebruikers WHERE display_naam = ? AND wachtwoord = ?',
-        (email, wachtwoord)
+        (login_input, wachtwoord)
     ).fetchone()
+
     conn.close()
 
     if gebruiker:
-        return jsonify({"success": True, "type": "gebruiker", "message": "Login successful"})
+        gebruiker_data = dict(gebruiker)
+        return jsonify({"success": True, "type": "gebruiker", **gebruiker_data})
 
-    return jsonify({"success": False, "message": "Invalid credentials"}), 401
+    return jsonify({"success": False, "message": "Onjuiste gebruikersnaam/wachtwoord"}), 401
 
-@app.route('/delete_resource', methods=['post'])
+@app.route('/delete_resource', methods=['POST'])
 def delete_resource():
     data = request.get_json()
     resource_id = data.get('resource_id')
@@ -62,7 +66,7 @@ def delete_resource():
     conn.close()
     return jsonify({"success": True, "message": "Resource deleted"}), 200
 
-@app.route('/update_profile', methods=['post'])
+@app.route('/update_profile', methods=['POST'])
 def update_profile():
     data = request.get_json()
     email = data.get('email')
@@ -80,7 +84,20 @@ def update_profile():
     conn.close()
     return jsonify({"success": True, "message": "Profile updated"}), 200
 
+@app.route('/get_resources', methods=['POST'])
+def get_resources():
+    data = request.get_json()
+    email = data.get('email')
 
+    if not email:
+        return jsonify({'success': False, 'message': 'Email is verplicht'}), 400
+
+    conn = get_db_connection()
+    resources = conn.execute("SELECT * FROM bronnen WHERE email = ?", (email,)).fetchall()
+    conn.close()
+
+    resource_list = [dict(r) for r in resources]
+    return jsonify({'success': True, 'resources': resource_list}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

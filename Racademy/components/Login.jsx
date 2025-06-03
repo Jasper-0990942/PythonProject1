@@ -3,17 +3,17 @@ import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [displayNaam, setDisplayNaam] = useState('');
+  const [login, setLogin] = useState('');
   const [wachtwoord, setWachtwoord] = useState('');
   const navigation = useNavigation();
 
+
+
   const handleLogin = async () => {
-    const body = {
-      email: email.trim() || undefined,
-      display_naam: displayNaam.trim() || undefined,
-      wachtwoord: wachtwoord.trim(),
-    };
+  const body = {
+    loginInput: login.trim(),
+    wachtwoord: wachtwoord.trim(),
+  };
 
     try {
       const response = await fetch('http://192.168.1.143:5000/', {
@@ -29,7 +29,7 @@ function Login() {
 
       if (response.ok && data.success) {
         alert(`Login successful als ${data.type}!`);
-        navigation.navigate('Profile');
+        navigation.navigate('Profile', {userData: data.userData});
       } else {
         alert(data.message || 'Invalid credentials');
       }
@@ -45,21 +45,15 @@ function Login() {
         <Text style={styles.title}>Login</Text>
 
         <TextInput
-          style={styles.input}
-          placeholder="Email (voor beheerders)"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
+  style={styles.input}
+  placeholder="Email of gebruikersnaam"
+  value={login}
+  onChangeText={setLogin}
+/>
+
+
         <TextInput
-          style={styles.input}
-          placeholder="Gebruikersnaam (voor gebruikers)"
-          autoCapitalize="none"
-          value={displayNaam}
-          onChangeText={setDisplayNaam}
-        />
-        <TextInput
-          style={styles.input}
+            style={styles.input}
           placeholder="Wachtwoord"
           secureTextEntry
           value={wachtwoord}
