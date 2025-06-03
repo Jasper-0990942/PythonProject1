@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Login() {
+function Login() {
   const [login, setLogin] = useState('');
   const [wachtwoord, setWachtwoord] = useState('');
-  const router = useRouter();
+  const navigation = useNavigation();
+
+
 
   const handleLogin = async () => {
-    const body = {
-      loginInput: login.trim(),
-      wachtwoord: wachtwoord.trim(),
-    };
+  const body = {
+    loginInput: login.trim(),
+    wachtwoord: wachtwoord.trim(),
+  };
 
     try {
       const response = await fetch('http://127.0.0.1:5000', {
@@ -27,10 +29,7 @@ export default function Login() {
 
       if (response.ok && data.success) {
         alert(`Login successful als ${data.type}!`);
-        router.push({
-          pathname: '/profiel',
-          params: { userData: JSON.stringify(data) },
-        });
+        navigation.navigate('profiel', {userData: data});
       } else {
         alert(data.message || 'Invalid credentials');
       }
@@ -46,14 +45,15 @@ export default function Login() {
         <Text style={styles.title}>Login</Text>
 
         <TextInput
-          style={styles.input}
-          placeholder="Email of gebruikersnaam"
-          value={login}
-          onChangeText={setLogin}
-        />
+  style={styles.input}
+  placeholder="Email of gebruikersnaam"
+  value={login}
+  onChangeText={setLogin}
+/>
+
 
         <TextInput
-          style={styles.input}
+            style={styles.input}
           placeholder="Wachtwoord"
           secureTextEntry
           value={wachtwoord}
@@ -114,3 +114,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default Login;

@@ -1,16 +1,20 @@
 from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
+import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, 'backend', 'database', 'database.db')
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'biem'
-DATABASE = 'database/database.db'
+DATABASE = 'backend/database/database.db'
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
+
 
 @app.route('/', methods=['GET'])
 def index():
