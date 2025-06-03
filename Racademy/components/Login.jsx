@@ -29,7 +29,7 @@ function Login() {
 
       if (response.ok && data.success) {
         alert(`Login successful als ${data.type}!`);
-        navigation.navigate('Profile', {userData: data.userData});
+        navigation.navigate('Profile', {userData: data});
       } else {
         alert(data.message || 'Invalid credentials');
       }
