@@ -10,12 +10,16 @@ users_bp = Blueprint('users_bp', __name__)
 @users_bp.post('/')
 @cross_origin()
 def create_user():
-    data = request.json
-    email = data.get("email")
-    teller = data.get("teller")
-    password = data.get("password")
-    if not all([email, teller, password]):
-        return {'error': 'Missing data'}, 400
+    display_name = 'jannie'
+    studentnr = request.json["studentnr"]
+    fname = request.json["fname"]
+    lname = request.json["lname"]
+    password = request.json["password"]
+    dateofbirth = request.json["dateofbirth"]
+    status = 'active'
+    user_model = Users()
+    new_user = user_model.add_user(display_name, studentnr, fname, lname, password, dateofbirth, status)
+    return {'successfull': new_user, 'success': True}, 201
 
 
 

@@ -4,15 +4,17 @@ import {View, Text, TextInput, StyleSheet, Alert, Pressable} from 'react-native'
 export default function Registratiescherm() {
     // const [name, setName] = useState('');
     // const [email, setEmail] = useState('');
-    const [studentnr, setStudentnr] = useState<number | undefined>(undefined);
-    const [geboortedatum, setGeboortedatum] = useState('');
-    const [voornaam, setVoornaam] = useState('');
-    const [achternaam, setAchternaam] = useState('');
+    const [studentnr, setStudentnr] = useState('');
+    const [dateofbirth, setDateofBirth] = useState('');
+    const [fname, setFname] = useState('');
+    const [lname, setLname] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
+    const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL
+
     const aanmaakRegistratie = async () => {
-        if (!studentnr || !geboortedatum || !password || !confirmPassword || !voornaam || !achternaam) {
+        if (!studentnr || !dateofbirth || !password || !confirmPassword || !fname || !lname) {
             Alert.alert("Vul alle velden in.")
             return;
         }
@@ -25,15 +27,15 @@ export default function Registratiescherm() {
             return;
         }
         try {
-            const response = await fetch('http://127.0.0.1:5000/', {
+            const response = await fetch(`${backendUrl}/users/`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json',},
                 body: JSON.stringify({
-                    voornaam: voornaam,
-                    achternaam: achternaam,
-                    studentnummer: studentnr,
-                    geboortedatum: geboortedatum,
-                    wachtwoord: password,
+                    'fname': fname,
+                    'lname': lname,
+                    'studentnr': studentnr,
+                    'dateofbirth': dateofbirth,
+                    'password': password,
                 }),
             });
             if (!response.ok) {
@@ -74,31 +76,26 @@ export default function Registratiescherm() {
             <Text className="text-s">Geboortedatum:</Text>
             <TextInput style={styles.input}
                        placeholder={'Geboortedatum'}
-                       value={geboortedatum}
-                       onChangeText={setGeboortedatum}>
+                       onChangeText={setDateofBirth}>
             </TextInput>
             <Text className="text-s">Voornaam:</Text>
             <TextInput style={styles.input}
                        placeholder={'Voornaam'}
-                       value={voornaam}
-                       onChangeText={setVoornaam}>
+                       onChangeText={setFname}>
             </TextInput>
             <Text className="text-s">Achternaam:</Text>
             <TextInput style={styles.input}
                        placeholder={'Achternaam'}
-                       value={achternaam}
-                       onChangeText={setAchternaam}>
+                       onChangeText={setLname}>
             </TextInput>
             <Text className="text-s">Wachtwoord:</Text>
             <TextInput style={styles.input}
             placeholder={'Wachtwoord'}
-            value={password}
             onChangeText={setPassword}>
             </TextInput>
             <Text className="text-s">Herhaal uw wachtwoord:</Text>
             <TextInput style={styles.input}
             placeholder={'Wachtwoord'}
-            value={confirmPassword}
             onChangeText={setConfirmPassword}>
             </TextInput>
 
