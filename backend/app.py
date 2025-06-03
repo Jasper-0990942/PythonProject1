@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 
-from backend.blueprints.users import users_bp
+from blueprints.users import users_bp
 from blueprints.sources import sources_bp
 
 app = Flask(__name__)
