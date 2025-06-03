@@ -2,25 +2,25 @@ from flask import jsonify
 
 from models.database_connection import Database
 
+class Users:
+    def add_user(self, studentnr, fname, lname, password_hash, dateofbirth, status):
+        db = Database()
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO users (studentnr, fname, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?)",
+            (studentnr, fname, lname, password_hash, dateofbirth, status))
+        db.commit()
+        return cursor.lastrowid
 
-class Sources:
-    def __init__(self):
-        database = Database()
-        self.cursor, self.con = database.connect_db()
+    def get_all_users(self):
+        db = Database()
+        cursor = db.cursor()
+        cursor.execute("SELECT user_id, studentnr, fname, lname FROM users")
+        return [dict(row) for row in cursor.fetchall()]
 
-    def add_sources(self, user_id, title, description, link, isbn, image):
-        result = self.cursor.execute(
-                '''INSERT INTO sources (user_id, title, description, link, ISBN, img) VALUES (?, ?, ?, ?, ?, ?)''', (user_id, title, description, link, isbn, image))
-        self.con.commit()
-        print(result)
-        return dict(result)
-
-    def get_all_sources(self):
-        result = self.cursor.execute(
-            '''SELECT sources.title, sources.description, sources.link, sources.ISBN, users.display_name, sources.date_created, sources.img, users.studentnr FROM sources JOIN users ON sources.user_id = users.user_id''').fetchall()
-        print(result)
-        sources = []
-        for row in result:
-            sources.append(dict(row))
-            print(sources)
-        return sources
+    def get_user_by_id(self, user_id):
+        db = Database()
+        cursor = db.cursor()
+        cursor.execute("SELECT user_id, studentnr, fname, lname, dateofbirth, status FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
