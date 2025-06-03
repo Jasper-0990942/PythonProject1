@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [displayNaam, setDisplayNaam] = useState('');
   const [wachtwoord, setWachtwoord] = useState('');
+  const navigation = useNavigation();
 
   const handleLogin = async () => {
     const body = {
@@ -23,9 +25,11 @@ function Login() {
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       if (response.ok && data.success) {
         alert(`Login successful als ${data.type}!`);
+        navigation.navigate('Profile');
       } else {
         alert(data.message || 'Invalid credentials');
       }
