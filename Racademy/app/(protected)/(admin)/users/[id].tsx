@@ -12,7 +12,7 @@ export default function UserDetails() {
     useEffect(() => {
         async function fetchUser() {
             try {
-                const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+                const res = await fetch(`http://localhost:5000/users/${id}`);
                 const data = await res.json();
                 setUser(data);
             } catch (error) {
@@ -43,10 +43,11 @@ export default function UserDetails() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Gebruiker Details</Text>
-            <Text>Naam: {user.name}</Text>
-            <Text>Email: {user.email}</Text>
-            <Text>Telefoon: {user.phone}</Text>
+            <Text>Naam: {user.fname} {user.infix ? user.infix + ' ' : ''}{user.lname}</Text>
+            <Text>Studentnummer: {user.studentnr}</Text>
+            <Text>Geboortedatum: {user.dateofbirth}</Text>
+            <Text>Status: {user.status}</Text>
+            <Text>Rol: {user.role}</Text>
         </View>
     );
 }
