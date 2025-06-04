@@ -9,3 +9,4 @@ node_modules
 ios
 /database/database.db
 *.pyc
+backend/database/database.db
