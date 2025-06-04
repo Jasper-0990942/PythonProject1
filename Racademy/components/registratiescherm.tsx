@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import {View, Text, TextInput, StyleSheet, Alert, Pressable} from 'react-native';
+import { useRouter } from 'expo-router';
+
 
 export default function Registratiescherm() {
     // const [name, setName] = useState('');
@@ -10,6 +12,8 @@ export default function Registratiescherm() {
     const [achternaam, setAchternaam] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    const router = useRouter();
 
     const aanmaakRegistratie = async () => {
         if (!studentnr || !geboortedatum || !password || !confirmPassword || !voornaam || !achternaam) {
@@ -41,7 +45,7 @@ export default function Registratiescherm() {
             }
 
             Alert.alert('Gelukt!', `Welkom ${voornaam}!`);
-            navigation.navigate('Login');
+            router.push('/');
         } catch (error) {
             Alert.alert('Fout', 'Er ging iets mis bij het registreren.');
         }
@@ -94,12 +98,14 @@ export default function Registratiescherm() {
             placeholder={'Wachtwoord'}
             value={password}
             onChangeText={setPassword}>
+                secureTextEntry
             </TextInput>
             <Text className="text-s">Herhaal uw wachtwoord:</Text>
             <TextInput style={styles.input}
             placeholder={'Wachtwoord'}
             value={confirmPassword}
             onChangeText={setConfirmPassword}>
+                secureTextEntry
             </TextInput>
 
             <Pressable className="bg-amber-300 justify-center items-center w-40 h-10" onPress={aanmaakRegistratie}>
