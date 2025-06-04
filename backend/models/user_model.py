@@ -1,6 +1,6 @@
 from flask import jsonify
 
-from database_connection import Database
+from models.database_connection import Database
 
 class Users:
     def add_user(self, studentnr, fname, lname, password_hash, dateofbirth, status):
@@ -14,13 +14,71 @@ class Users:
 
     def get_all_users(self):
         db = Database()
-        cursor = db.cursor()
-        cursor.execute("SELECT user_id, studentnr, fname, lname FROM users")
-        return [dict(row) for row in cursor.fetchall()]
+        cursor, con = db.connect_db()
+        cursor.execute("""
+             
+        SELECT
+        user_id AS id,
+        email,
+        fname,
+        infix,
+        lname,
+        status,
+        'user' AS role
+        FROM users
+        UNION
+        SELECT
+        admin_id AS id,
+        email,
+        fname,
+        infix,
+        lname,
+        status,
+        'admin' AS role
+        FROM admins
+         """)
+        rows = cursor.fetchall()
 
-    def get_user_by_id(self, user_id):
-        db = Database()
-        cursor = db.cursor()
-        cursor.execute("SELECT user_id, studentnr, fname, lname, dateofbirth, status FROM users WHERE id = ?", (user_id,))
-        row = cursor.fetchone()
-        return dict(row) if row else None
+        # cursor.execute("""
+        #     SELECT admin_id AS id, email, NULL AS display_name, NULL AS studentnr, fname, infix, lname, dateofbirth, status, 'admin' AS role FROM admins """)
+        # admins = [dict(row) for row in cursor.fetchall()]
+
+        con.close()
+        return [dict(row) for row in rows]
+
+
+def get_user_by_id(self, user_id):
+    db = Database()
+    cursor, con = db.connect_db()
+    cursor.execute("""
+        SELECT 
+            user_id AS id,
+            email,
+            fname,
+            infix,
+            lname,
+            dateofbirth,
+            status,
+            studentnr,
+            'user' AS role
+        FROM users
+        WHERE user_id = ?
+
+        UNION
+
+        SELECT 
+            admin_id AS id,
+            email,
+            fname,
+            infix,
+            lname,
+            dateofbirth,
+            status,
+            NULL AS studentnr,
+            'admin' AS role
+        FROM admins
+        WHERE admin_id = ?
+    """, (user_id, user_id))
+    row = cursor.fetchone()
+    con.close()
+    return dict(row) if row else None
