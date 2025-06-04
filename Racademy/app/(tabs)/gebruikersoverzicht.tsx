@@ -4,9 +4,12 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 
 type User = {
     id: number;
-    name: string;
     email: string;
-};
+    fname: string;
+    infix?: string;
+    lname: string;
+    status: string;
+    role: 'user' | 'admin'; };
 
 export default function OverzichtUsers() {
     const router = useRouter();
@@ -16,9 +19,11 @@ export default function OverzichtUsers() {
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const res = await fetch('https://jsonplaceholder.typicode.com/users');
-                const data = await res.json();
-                setUsers(data);
+                console.log('Fetching users');
+                const res = await fetch('http://mijn-ip:5050/users/');
+                const json = await res.json();
+                console.log('gebruikersdata ontvangen', json.users);
+                setUsers(json.users);
             } catch (error) {
                 console.error('Fout bij het ophalen van gebruikers:', error);
             } finally {
@@ -31,11 +36,14 @@ export default function OverzichtUsers() {
 
     const renderItem = ({ item }: { item: User }) => (
         <View style={styles.userCard}>
-            <Text style={styles.userName}>{item.name}</Text>
-            <Text style={styles.userEmail}>{item.email}</Text>
+            <Text style={styles.userName}>
+                {item.fname} {item.infix ?? ''} {item.lname}
+            </Text>
+            <Text style={styles.userEmail}>{item.email} ({item.role})</Text>
             <Button title="Details" onPress={() => router.push(`/users/${item.id}`)} />
         </View>
     );
+
 
     if (loading) {
         return (
