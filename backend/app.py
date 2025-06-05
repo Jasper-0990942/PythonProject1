@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
 from blueprints.users import users_bp
 from blueprints.sources import sources_bp
 import sqlite3
