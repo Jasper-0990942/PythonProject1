@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Button, ActivityIndicator } from 'react-native';
-import {useLocalSearchParams, useRouter} from 'expo-router';
+import {useRouter} from 'expo-router';
 
 type User = {
     id: number;
@@ -20,9 +20,9 @@ export default function OverzichtUsers() {
         async function fetchUsers() {
             try {
                 console.log('Fetching users');
-                const res = await fetch('http://mijn-ip:5050/users/');
+                const res = await fetch('http://localhost:5050/users/');
                 const json = await res.json();
-                console.log('gebruikersdata ontvangen', json.users);
+                console.log('Gebruikersdata ontvangen', json.users);
                 setUsers(json.users);
             } catch (error) {
                 console.error('Fout bij het ophalen van gebruikers:', error);
@@ -84,9 +84,7 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#f3f3f3',
         borderRadius: 8,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        boxShadow: '#000',
         elevation: 2,
     },
     userName: {
