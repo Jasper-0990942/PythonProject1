@@ -1,35 +1,56 @@
-import React, { useState } from 'react';
-import {View, Text, FlatList, StyleSheet, ScrollView} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Button, ActivityIndicator } from 'react-native';
+import {useLocalSearchParams, useRouter} from 'expo-router';
 
+type User = {
+    id: number;
+    name: string;
+    email: string;
+};
 
-
-export function UserOverview() {
-    return (
-        <ScrollView className="flex-1 bg-white">
-            <OverzichtUsers/>
-        </ScrollView>
-    )
-}
 export default function OverzichtUsers() {
-    const [users, setUsers] = useState([
-        { id: '1', name: 'Johan Bakayoko', email: 'johan@bakayoko.com' },
-        { id: '2', name: 'Ricardo Pepi', email: 'ricardo@pepi.com' },
-        { id: '3', name: 'Malik Tillman', email: 'malik@tillman.com' },
-    ]);
+    const router = useRouter();
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const renderItem = ({ item } : {item: any}) => (
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const res = await fetch('https://jsonplaceholder.typicode.com/users');
+                const data = await res.json();
+                setUsers(data);
+            } catch (error) {
+                console.error('Fout bij het ophalen van gebruikers:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchUsers();
+    }, []);
+
+    const renderItem = ({ item }: { item: User }) => (
         <View style={styles.userCard}>
             <Text style={styles.userName}>{item.name}</Text>
             <Text style={styles.userEmail}>{item.email}</Text>
+            <Button title="Details" onPress={() => router.push(`/users/${item.id}`)} />
         </View>
     );
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Overzicht van alle gebruikers</Text>
             <FlatList
                 data={users}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
             />
