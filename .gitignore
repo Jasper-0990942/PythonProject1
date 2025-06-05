@@ -8,3 +8,5 @@ node_modules
 
 ios
 *.pyc
+database/database.db
+backend/database/database.db
