@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+from blueprints.users import users_bp
 from blueprints.sources import sources_bp
 import sqlite3
 
@@ -9,6 +11,7 @@ app.secret_key = 'biem'
 DATABASE = 'database/database.db'
 
 app.register_blueprint(sources_bp, url_prefix="/sources")
+app.register_blueprint(users_bp, url_prefix="/users")
 
 
 def get_db_connection():
