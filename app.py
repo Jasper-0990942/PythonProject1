@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
-
+import jwt
+import datetime
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'biem'
@@ -28,7 +29,6 @@ def login():
 
     conn = get_db_connection()
 
-    # Beheerder login
     beheerder = conn.execute(
         'SELECT * FROM beheerders WHERE email = ? AND wachtwoord = ?',
         (login_input, wachtwoord)
@@ -37,9 +37,19 @@ def login():
     if beheerder:
         conn.close()
         beheerder_data = dict(beheerder)
-        return jsonify({"success": True, "type": "beheerder", **beheerder_data})
+        token = jwt.encode({
+            'email': beheerder_data['email'],
+            'type': 'beheerder',
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }, app.secret_key, algorithm='HS256')
+        return jsonify({
+            'success': True,
+            'type': 'beheerder',
+            "token": token,
+            **beheerder_data
+        })
 
-    # Gebruiker login
+
     gebruiker = conn.execute(
         'SELECT * FROM gebruikers WHERE display_naam = ? AND wachtwoord = ?',
         (login_input, wachtwoord)
@@ -49,7 +59,18 @@ def login():
 
     if gebruiker:
         gebruiker_data = dict(gebruiker)
-        return jsonify({"success": True, "type": "gebruiker", **gebruiker_data})
+
+        token = jwt.encode({
+            'display_naam': gebruiker_data['display_naam'],
+            'type': 'gebruiker',
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }, app.secret_key, algorithm='HS256')
+        return jsonify({
+            'success': True,
+            'type': 'gebruiker',
+            "token": token,
+            **gebruiker_data
+        })
 
     return jsonify({"success": False, "message": "Onjuiste gebruikersnaam/wachtwoord"}), 401
 
