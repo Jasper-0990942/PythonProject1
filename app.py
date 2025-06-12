@@ -88,6 +88,30 @@ def delete_resource():
     conn.close()
     return jsonify({"success": True, "message": "Resource deleted"}), 200
 
+@app.route('/update_resource', methods=['POST'])
+def update_resource():
+    data = request.get_json()
+
+    resource_id = data.get('resource_id')
+    new_title = data.get('title')
+
+    if not resource_id or not new_title:
+        return jsonify({"success": False, "message": "resource_id en title zijn vereist"}), 400
+
+    conn = get_db_connection()
+
+    try:
+        conn.execute(
+            "UPDATE resources SET title = ? WHERE id = ?",
+            (new_title, resource_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Resource succesvol bijgewerkt"}), 200
+    except Exception as e:
+        conn.close()
+        return jsonify({"success": False, "message": f"Fout bij bijwerken van resource: {str(e)}"}), 500
+
 
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
