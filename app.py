@@ -88,26 +88,43 @@ def delete_resource():
     conn.close()
     return jsonify({"success": True, "message": "Resource deleted"}), 200
 
+
 @app.route('/update_profile', methods=['POST'])
 def update_profile():
     data = request.get_json()
-    original_display_naam = data.get('original_email')
-    new_display_naam = data.get('email')
+
+    original_email = data.get('original_email')
+    new_email = data.get('email')
+
+    original_display_naam = data.get('original_display_naam')
+    new_display_naam = data.get('display_naam')
+
     voornaam = data.get('voornaam')
     achternaam = data.get('achternaam')
 
-    if not original_display_naam:
-        return jsonify({'success': False, 'message': 'Original display_naam is required'}), 400
-
     conn = get_db_connection()
-    conn.execute(
-        "UPDATE gebruikers SET display_naam = ?, voornaam = ?, achternaam = ? WHERE display_naam = ?",
-        (new_display_naam, voornaam, achternaam, original_display_naam)
-    )
-    conn.commit()
-    conn.close()
-    return jsonify({"success": True, "message": "Profile updated"}), 200
 
+    if original_email:
+        conn.execute(
+            "UPDATE beheerders SET email = ?, voornaam = ?, achternaam = ? WHERE email = ?",
+            (new_email, voornaam, achternaam, original_email)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Beheerder profiel bijgewerkt"}), 200
+
+    elif original_display_naam:
+        conn.execute(
+            "UPDATE gebruikers SET display_naam = ?, voornaam = ?, achternaam = ? WHERE display_naam = ?",
+            (new_display_naam, voornaam, achternaam, original_display_naam)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Gebruiker profiel bijgewerkt"}), 200
+
+    else:
+        conn.close()
+        return jsonify({"success": False, "message": "Geen geldige identifier ontvangen"}), 400
 
 
 @app.route('/get_resources', methods=['POST'])

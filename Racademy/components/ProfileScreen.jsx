@@ -11,7 +11,6 @@ export default function ProfileScreen({ route }) {
     achternaam: '',
   });
 
-  const [isEditing, setIsEditing] = useState(false);
   const [resources, setResources] = useState([]);
   const [editedResourceTitle, setEditedResourceTitle] = useState('');
   const [editingResourceId, setEditingResourceId] = useState(null);
@@ -25,6 +24,7 @@ export default function ProfileScreen({ route }) {
         achternaam: userData.achternaam || '',
       });
       setOriginalEmail(userData.email || '');
+      fetchResources(userData.email);
     }
   }, [userData]);
 
@@ -53,10 +53,27 @@ export default function ProfileScreen({ route }) {
     }
   };
 
-  const handleSaveProfile = async () => {
-    console.log("handleSaveProfile called with profile:", profile);
-    setIsEditing(false);
+  const fetchResources = async (email) => {
+    try {
+      const response = await fetch('http://192.168.1.143:5000/get_resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
 
+      const json = await response.json();
+
+      if (json.success) {
+        setResources(json.resources);
+      } else {
+        console.error('Fout bij ophalen van resources:', json.message);
+      }
+    } catch (err) {
+      console.error('Network error bij resources ophalen:', err);
+    }
+  };
+
+  const handleSaveProfile = async () => {
     try {
       const response = await fetch('http://192.168.1.143:5000/update_profile', {
         method: 'POST',
@@ -69,8 +86,6 @@ export default function ProfileScreen({ route }) {
         }),
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
         const text = await response.text();
         console.error("Non-OK response:", text);
@@ -79,14 +94,11 @@ export default function ProfileScreen({ route }) {
       }
 
       const json = await response.json();
-      console.log("Response JSON:", json);
 
       if (json.success) {
-        console.log('Profiel succesvol bijgewerkt', profile);
         setOriginalEmail(profile.email);
-        Alert.alert("Succes", "Profiel is bijgewerkt.");
+        Alert.alert("Succes", "Profiel succesvol aangepast.");
       } else {
-        console.log('Profiel bijwerken mislukt:', json.message);
         Alert.alert("Fout", json.message || "Profiel bijwerken mislukt.");
       }
     } catch (error) {
@@ -103,36 +115,23 @@ export default function ProfileScreen({ route }) {
         style={styles.input}
         value={profile.voornaam}
         onChangeText={(text) => setProfile({...profile, voornaam: text})}
-        editable={isEditing}
       />
-
       <TextInput
         style={styles.input}
         value={profile.achternaam}
         onChangeText={(text) => setProfile({...profile, achternaam: text})}
-        editable={isEditing}
       />
-
       <TextInput
         style={styles.input}
         value={profile.email}
         onChangeText={(text) => setProfile({...profile, email: text})}
-        editable={isEditing}
       />
 
       <Pressable
         style={styles.primaryButton}
-        onPress={() => {
-          if (isEditing) {
-            handleSaveProfile();
-          } else {
-            setIsEditing(true);
-          }
-        }}
+        onPress={handleSaveProfile}
       >
-        <Text style={styles.primaryButtonText}>
-          {isEditing ? 'Opslaan' : 'Bewerken'}
-        </Text>
+        <Text style={styles.primaryButtonText}>Opslaan</Text>
       </Pressable>
 
       {resources.map(resource => (
@@ -160,7 +159,7 @@ export default function ProfileScreen({ route }) {
                   setEditingResourceId(null);
                 }}
               >
-                <Text style={styles.buttonText}>Opslaan</Text>
+                <Text style={styles.primaryButtonText}>Opslaan</Text>
               </Pressable>
             ) : (
               <Pressable
@@ -196,22 +195,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
-  card: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -226,24 +209,23 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 6,
     alignItems: 'center',
+    marginBottom: 16,
   },
   primaryButtonText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
   },
-  subheading: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
   resourceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
   },
   resourceText: {
     fontSize: 16,
+    flex: 1,
+    marginRight: 10,
   },
   buttonGroup: {
     flexDirection: 'row',
