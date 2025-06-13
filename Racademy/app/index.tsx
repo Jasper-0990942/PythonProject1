@@ -31,9 +31,10 @@ function Login() {
         alert(`Login successful as ${data.type}!`);
 
         router.push({
-          pathname: '/profile',
+          pathname: '/Profile',
           params: { userData: JSON.stringify(data) },
         });
+
       } else {
         alert(data.message || 'Invalid credentials');
       }

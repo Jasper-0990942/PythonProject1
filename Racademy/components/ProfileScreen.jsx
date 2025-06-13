@@ -1,258 +1,230 @@
-import React, {useState, useEffect} from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useRouter, } from 'expo-router';
 
-
-
-
-export default function ProfileScreen({ route }) {
-  const userData = route?.params?.userData;
-  console.log('userData ontvangen:', userData);
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { token, userType } = useRouter();
 
   const [profile, setProfile] = useState({
     email: '',
-    voornaam: '',
-    achternaam: '',
+    fname: '',
+    lname: '',
+    password: '',
+    infix: '',
+    dateofbirth: '',
+    status: '',
+    studentnr: '',
+    display_name: '',
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [resources, setResources] = useState([]);
-  const [editedResourceTitle, setEditedResourceTitle] = useState('');
-const [editingResourceId, setEditingResourceId] = useState(null);
-
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [originalIdentifier, setOriginalIdentifier] = useState('');
 
   useEffect(() => {
-    if (userData) {
-      setProfile({
-        email: userData.email || '',
-        voornaam: userData.voornaam || '',
-        achternaam: userData.achternaam || '',
+    if (!token) {
+      Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
+      router.push('/login');
+      return;
+    }
+
+    setIsAdmin(userType === 'admin' || userType === 'beheerder');
+
+    const fetchProfile = async () => {
+      try {
+        const resp = await fetch('http://127.0.0.1:5000/get_profile', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await resp.json();
+
+        if (json.success) {
+          const data = json.profile;
+          setProfile({
+            email: data.email || '',
+            fname: data.fname || data.first_name || '',
+            lname: data.lname || data.last_name || '',
+            infix: data.infix || '',
+            dateofbirth: data.dateofbirth || '',
+            status: data.status || '',
+            studentnr: data.studentnr || '',
+            display_name: data.display_name || '',
+            password: '',
+          });
+          setOriginalIdentifier(data.email || data.display_name || '');
+          setLoading(false);
+        } else {
+          Alert.alert('Fout', json.message || 'Profiel laden mislukt');
+          setLoading(false);
+        }
+      } catch (error) {
+        Alert.alert('Fout', 'Netwerkfout bij laden profiel');
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [token, userType]);
+
+  const handleSaveProfile = async () => {
+    const body = {
+      fname: profile.fname,
+      lname: profile.lname,
+      infix: profile.infix,
+      dateofbirth: profile.dateofbirth,
+      status: profile.status,
+      password: profile.password,
+    };
+
+    if (isAdmin) {
+      body.original_email = originalIdentifier;
+      body.email = profile.email;
+    } else {
+      body.original_display_name = originalIdentifier;
+      body.display_name = profile.display_name;
+      body.studentnr = profile.studentnr;
+    }
+
+    try {
+      const resp = await fetch('http://127.0.0.1:5000/update_profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
       });
+      const json = await resp.json();
+
+      if (json.success) {
+        setOriginalIdentifier(isAdmin ? profile.email : profile.display_name);
+        setProfile(prev => ({ ...prev, password: '' }));
+        Alert.alert('Succes', 'Profiel succesvol bijgewerkt.');
+      } else {
+        Alert.alert('Fout', json.message || 'Bijwerken mislukt.');
+      }
+    } catch (error) {
+      Alert.alert('Fout', 'Netwerkfout bij opslaan profiel');
     }
-  }, [userData]);
+  };
 
-
-
-
-
-const handleEditResource = (id) => {
-  const resource = resources.find(r => r.id === id);
-  setEditingResourceId(id);
-  setEditedResourceTitle(resource.title);
-};
-
-
-const handleDeleteResource = async (id) => {
-  try {
-    const response = await fetch('delete_resource', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ resource_id: id }),
-    });
-
-    const json = await response.json();
-    if (json.success) {
-      setResources((prev) => prev.filter((r) => r.id !== id));
-    } else {
-      console.log('Failed to delete:', json.message);
-    }
-  } catch (err) {
-    console.error('Delete error:', err);
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#d2214b" />
+      </View>
+    );
   }
-};
-
-
- const handleSaveProfile = async () => {
-  setIsEditing(false);
-  try {
-    const response = await fetch('http://localhost:3000/update_profile', {
-      method: 'POST',
-      headers: {'content-type': 'application/json'},
-      body: JSON.stringify(profile)
-    });
-
-    const json = await response.json();
-    if (json.success) {
-      console.log('Profile successfully updated', profile);
-    } else {
-      console.log('Profile failed with error', json.message);
-    }
-  } catch (error) {
-    console.error('Error while saving profile', error);
-  }
-};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Profiel</Text>
 
-      <TextInput
-        style={styles.input}
-        value={profile.voornaam}
-        onChangeText={(text) => setProfile({...profile, voornaam: text})}
+      {isAdmin && (
+        <TextInput
+          style={styles.input}
+          placeholder="E-mailadres"
+          value={profile.email}
+          onChangeText={text => setProfile({ ...profile, email: text })}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
-
-      <TextInput
-        style={styles.input}
-        value={profile.achternaam}
-        onChangeText={(text) => setProfile({...profile, achternaam: text})}
-        />
-
-      <TextInput
-        style={styles.input}
-        value={profile.email}
-        onChangeText={(text) => setProfile({...profile, email: text})}
-        />
-
-
-<Pressable
-  style={styles.primaryButton}
-  onPress={() => {
-    if (isEditing) {
-      handleSaveProfile();
-    } else {
-      setIsEditing(true);
-    }
-  }}
->
-  <Text style={styles.primaryButtonText}>
-    {isEditing ? 'Opslaan' : 'Bewerken'}
-  </Text>
-</Pressable>
-
-
-{resources.map(resource => (
-  <View key={resource.id} style={styles.resourceRow}>
-    {editingResourceId === resource.id ? (
-      <TextInput
-        style={styles.input}
-        value={editedResourceTitle}
-        onChangeText={setEditedResourceTitle}
-      />
-    ) : (
-      <Text style={styles.resourceText}>{resource.title}</Text>
-    )}
-
-    <View style={styles.buttonGroup}>
-      {editingResourceId === resource.id ? (
-        <Pressable
-          style={styles.primaryButton}
-          onPress={() => {
-            // Save changes
-            setResources(prev =>
-              prev.map(r =>
-                r.id === resource.id ? { ...r, title: editedResourceTitle } : r
-              )
-            );
-            setEditingResourceId(null);
-          }}
-        >
-          <Text style={styles.buttonText}>Opslaan</Text>
-        </Pressable>
-      ) : (
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={() => handleEditResource(resource.id)}
-        >
-          <Text style={styles.buttonText}>Bewerken</Text>
-        </Pressable>
       )}
 
-      <Pressable
-        style={styles.dangerButton}
-        onPress={() => handleDeleteResource(resource.id)}
-      >
-        <Text style={styles.buttonText}>Verwijderen</Text>
-      </Pressable>
-    </View>
-  </View>
-))}
+      {!isAdmin && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Display Name"
+            value={profile.display_name}
+            onChangeText={text => setProfile({ ...profile, display_name: text })}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Studentnummer"
+            value={profile.studentnr}
+            onChangeText={text => setProfile({ ...profile, studentnr: text })}
+            keyboardType="numeric"
+          />
+        </>
+      )}
 
+      <TextInput
+        style={styles.input}
+        placeholder="Voornaam"
+        value={profile.fname}
+        onChangeText={text => setProfile({ ...profile, fname: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Tussenvoegsel"
+        value={profile.infix}
+        onChangeText={text => setProfile({ ...profile, infix: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Achternaam"
+        value={profile.lname}
+        onChangeText={text => setProfile({ ...profile, lname: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Geboortedatum (YYYY-MM-DD)"
+        value={profile.dateofbirth}
+        onChangeText={text => setProfile({ ...profile, dateofbirth: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Status"
+        value={profile.status}
+        onChangeText={text => setProfile({ ...profile, status: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Wachtwoord"
+        value={profile.password}
+        onChangeText={text => setProfile({ ...profile, password: text })}
+        secureTextEntry
+      />
+
+      <Pressable style={styles.button} onPress={handleSaveProfile}>
+        <Text style={styles.buttonText}>Opslaan</Text>
+      </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-    flexGrow: 1,
-  },
+  container: { flexGrow: 1, padding: 20, backgroundColor: '#fdf3e8' },
   header: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: '700',
     marginBottom: 24,
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
+    textAlign: 'center',
+    color: '#03193c',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
-    backgroundColor: '#fff',
+    height: 48,
+    borderBottomWidth: 2,
+    borderColor: '#03193c',
+    marginBottom: 24,
+    fontSize: 16,
+    paddingHorizontal: 8,
+    color: '#03193c',
   },
-  primaryButton: {
-    backgroundColor: '#0d6efd',
-    paddingVertical: 12,
-    borderRadius: 6,
+  button: {
+    backgroundColor: '#d2214b',
+    paddingVertical: 14,
+    borderRadius: 24,
     alignItems: 'center',
+    marginTop: 20,
   },
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  subheading: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  resourceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  resourceText: {
-    fontSize: 16,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  secondaryButton: {
-    backgroundColor: '#6c757d',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  dangerButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
