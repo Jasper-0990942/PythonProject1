@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
 from blueprints.users import users_bp
 from blueprints.sources import sources_bp
 import sqlite3
@@ -22,7 +23,7 @@ def get_db_connection():
 def index():
     return "API is running", 200
 
-@app.route('/', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     login_input = data.get('loginInput')
@@ -106,4 +107,4 @@ def get_resources():
     return jsonify({'success': True, 'resources': resource_list}), 200
 
 if __name__ == '__main__':
-    app.run(port=5050, host='0.0.0.0', debug=True)
+    app.run(port=5000, host='0.0.0.0', debug=True)
