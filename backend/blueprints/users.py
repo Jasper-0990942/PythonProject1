@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from werkzeug.security import generate_password_hash
 from models.user_model import Users
+from flask import url_for
 
 
 users_bp = Blueprint('users_bp', __name__)
@@ -9,12 +10,17 @@ users_bp = Blueprint('users_bp', __name__)
 @users_bp.post('/')
 @cross_origin()
 def create_user():
-    data = request.json
-    email = data.get("email")
-    studentnr = data.get("studentnr")
-    password = data.get("password")
-    if not all([email, studentnr, password]):
-        return {'error': 'Missing data'}, 400
+    display_name = 'jannie'
+    studentnr = request.json["studentnr"]
+    fname = request.json["fname"]
+    lname = request.json["lname"]
+    password = request.json["password"]
+    dateofbirth = request.json["dateofbirth"]
+    status = 'active'
+    user_model = Users()
+    new_user = user_model.add_user(display_name, studentnr, fname, lname, password, dateofbirth, status)
+    return {'successfull': new_user, 'success': True}, 201
+
 
 
 @users_bp.get('/')
