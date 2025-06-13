@@ -4,11 +4,15 @@ from flask_cors import CORS
 import jwt
 import datetime
 from functools import wraps
+import os
 
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'biem'
-DATABASE = 'database/database.db'
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE = os.path.join(BASE_DIR, 'database', 'database.db')
+
 
 def token_required(user_type=None):
     def decorator(f):
@@ -16,7 +20,9 @@ def token_required(user_type=None):
         def decorated_function(*args, **kwargs):
             token = None
             if 'Authorization' in request.headers:
-                token = request.headers['Authorization'].split(" ")[1]
+                parts = request.headers['Authorization'].split(" ")
+                if len(parts) == 2:
+                    token = parts[1]
 
             if not token:
                 return jsonify({'success': False, 'message': 'Token is missing'}), 401
@@ -35,69 +41,109 @@ def token_required(user_type=None):
         return decorated_function
     return decorator
 
+
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
+
 @app.route('/', methods=['GET'])
 def index():
     return "API is running", 200
+
 
 @app.route('/', methods=['POST'])
 def login():
     data = request.get_json()
     login_input = data.get('loginInput')
-    wachtwoord = data.get('wachtwoord')
+    password = data.get('password')
 
-    if not login_input or not wachtwoord:
-        return jsonify({'success': False, 'message': 'Login en wachtwoord zijn verplicht'}), 400
+    if not login_input or not password:
+        return jsonify({'success': False, 'message': 'Login and password are required'}), 400
 
     conn = get_db_connection()
 
-    beheerder = conn.execute(
-        'SELECT * FROM beheerders WHERE email = ? AND wachtwoord = ?',
-        (login_input, wachtwoord)
+    # Try admin first
+    admin = conn.execute(
+        'SELECT * FROM admins WHERE email = ? AND password = ?',
+        (login_input, password)
     ).fetchone()
 
-    if beheerder:
-        conn.close()
-        beheerder_data = dict(beheerder)
+    if admin:
+        admin_data = dict(admin)
         token = jwt.encode({
-            'email': beheerder_data['email'],
-            'type': 'beheerder',
+            'email': admin_data['email'],
+            'type': 'admin',
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
+
+        admin_data.pop('password', None)
+
         return jsonify({
             'success': True,
-            'type': 'beheerder',
-            "token": token,
-            **beheerder_data
+            'type': 'admin',
+            'token': token,
+            'user': admin_data
         })
 
-    gebruiker = conn.execute(
-        'SELECT * FROM gebruikers WHERE display_naam = ? AND wachtwoord = ?',
-        (login_input, wachtwoord)
+    # Try user next
+    user = conn.execute(
+        'SELECT * FROM users WHERE display_name = ? AND password = ?',
+        (login_input, password)
     ).fetchone()
 
     conn.close()
 
-    if gebruiker:
-        gebruiker_data = dict(gebruiker)
-
+    if user:
+        user_data = dict(user)
         token = jwt.encode({
-            'display_naam': gebruiker_data['display_naam'],
-            'type': 'gebruiker',
+            'display_name': user_data['display_name'],
+            'type': 'user',
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
+
+        user_data.pop('password', None)
+
         return jsonify({
             'success': True,
-            'type': 'gebruiker',
-            "token": token,
-            **gebruiker_data
+            'type': 'user',
+            'token': token,
+            'user': user_data
         })
 
-    return jsonify({"success": False, "message": "Onjuiste gebruikersnaam/wachtwoord"}), 401
+    return jsonify({"success": False, "message": "Incorrect username or password"}), 401
+
+
+@app.route('/profile', methods=['GET'])
+@token_required()
+def profile():
+    user = request.user
+    conn = get_db_connection()
+
+    if user['type'] == 'admin':
+        admin = conn.execute('SELECT * FROM admins WHERE email = ?', (user['email'],)).fetchone()
+        conn.close()
+        if admin:
+            admin_data = dict(admin)
+            admin_data.pop('password', None)
+            return jsonify({'success': True, 'type': 'admin', 'user': admin_data})
+        else:
+            return jsonify({'success': False, 'message': 'Admin not found'}), 404
+
+    elif user['type'] == 'user':
+        usr = conn.execute('SELECT * FROM users WHERE display_name = ?', (user['display_name'],)).fetchone()
+        conn.close()
+        if usr:
+            user_data = dict(usr)
+            user_data.pop('password', None)
+            return jsonify({'success': True, 'type': 'user', 'user': user_data})
+        else:
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    else:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Invalid user type'}), 400
 
 
 @app.route('/delete_resource', methods=['POST'])
@@ -110,7 +156,7 @@ def delete_resource():
         return jsonify({'success': False, 'message': 'No data received'}), 400
 
     conn = get_db_connection()
-    conn.execute("DELETE FROM bronnen WHERE id = ?", (resource_id,))
+    conn.execute("DELETE FROM resources WHERE id = ?", (resource_id,))
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": "Resource deleted"}), 200
@@ -120,65 +166,82 @@ def delete_resource():
 @token_required()
 def update_resource():
     data = request.get_json()
-
     resource_id = data.get('resource_id')
     new_title = data.get('title')
 
     if not resource_id or not new_title:
-        return jsonify({"success": False, "message": "resource_id en title zijn vereist"}), 400
+        return jsonify({"success": False, "message": "resource_id and title are required"}), 400
 
     conn = get_db_connection()
-
     try:
-        conn.execute(
-            "UPDATE resources SET title = ? WHERE id = ?",
-            (new_title, resource_id)
-        )
+        conn.execute("UPDATE resources SET title = ? WHERE id = ?", (new_title, resource_id))
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Resource succesvol bijgewerkt"}), 200
+        return jsonify({"success": True, "message": "Resource successfully updated"}), 200
     except Exception as e:
         conn.close()
-        return jsonify({"success": False, "message": f"Fout bij bijwerken van resource: {str(e)}"}), 500
+        return jsonify({"success": False, "message": f"Error updating resource: {str(e)}"}), 500
 
 
 @app.route('/update_profile', methods=['POST'])
 @token_required()
 def update_profile():
     data = request.get_json()
+    print('Received data:', data)
 
-    original_email = data.get('original_email')
-    new_email = data.get('email')
+    # Admin update
+    if 'original_email' in data:
+        original_email = data.get('original_email')
+        email = data.get('email')
+        password = data.get('password')
+        fname = data.get('fname')
+        infix = data.get('infix')
+        lname = data.get('lname')
+        dateofbirth = data.get('dateofbirth')
+        status = data.get('status')
 
-    original_display_naam = data.get('original_display_naam')
-    new_display_naam = data.get('display_naam')
+        if not original_email:
+            return jsonify({'success': False, 'message': 'original_email is required'}), 400
 
-    voornaam = data.get('voornaam')
-    achternaam = data.get('achternaam')
-
-    conn = get_db_connection()
-
-    if original_email:
+        conn = get_db_connection()
         conn.execute(
-            "UPDATE beheerders SET email = ?, voornaam = ?, achternaam = ? WHERE email = ?",
-            (new_email, voornaam, achternaam, original_email)
+            """UPDATE admins
+               SET email = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
+               WHERE email = ?""",
+            (email, password, fname, infix, lname, dateofbirth, status, original_email)
         )
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Beheerder profiel bijgewerkt"}), 200
 
-    elif original_display_naam:
+        return jsonify({'success': True, 'message': 'Admin profile updated'}), 200
+
+    elif 'original_display_name' in data:
+        original_display_name = data.get('original_display_name')
+        display_name = data.get('display_name')
+        studentnr = data.get('studentnr')
+        password = data.get('password')
+        fname = data.get('fname')
+        infix = data.get('infix')
+        lname = data.get('lname')
+        dateofbirth = data.get('dateofbirth')
+        status = data.get('status')
+
+        if not original_display_name:
+            return jsonify({'success': False, 'message': 'original_display_name is required'}), 400
+
+        conn = get_db_connection()
         conn.execute(
-            "UPDATE gebruikers SET display_naam = ?, voornaam = ?, achternaam = ? WHERE display_naam = ?",
-            (new_display_naam, voornaam, achternaam, original_display_naam)
+            """UPDATE users
+               SET display_name = ?, studentnr = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
+               WHERE display_name = ?""",
+            (display_name, studentnr, password, fname, infix, lname, dateofbirth, status, original_display_name)
         )
         conn.commit()
         conn.close()
-        return jsonify({"success": True, "message": "Gebruiker profiel bijgewerkt"}), 200
 
-    else:
-        conn.close()
-        return jsonify({"success": False, "message": "Geen geldige identifier ontvangen"}), 400
+        return jsonify({'success': True, 'message': 'User profile updated'}), 200
+
+    return jsonify({'success': False, 'message': 'No valid identifier provided'}), 400
 
 
 @app.route('/get_resources', methods=['POST'])
@@ -188,10 +251,10 @@ def get_resources():
     email = data.get('email')
 
     if not email:
-        return jsonify({'success': False, 'message': 'Email is verplicht'}), 400
+        return jsonify({'success': False, 'message': 'Email is required'}), 400
 
     conn = get_db_connection()
-    resources = conn.execute("SELECT * FROM bronnen WHERE email = ?", (email,)).fetchall()
+    resources = conn.execute("SELECT * FROM resources WHERE email = ?", (email,)).fetchall()
     conn.close()
 
     resource_list = [dict(r) for r in resources]

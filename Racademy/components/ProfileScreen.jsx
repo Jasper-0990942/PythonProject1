@@ -1,297 +1,230 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useRouter, } from 'expo-router';
 
-export default function ProfileScreen({ route }) {
-  const userData = route?.params?.userData;
-  const isBeheerder = userData?.type === 'beheerder';
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { token, userType } = useRouter();
 
   const [profile, setProfile] = useState({
     email: '',
-    display_naam: '',
-    voornaam: '',
-    achternaam: '',
+    fname: '',
+    lname: '',
+    password: '',
+    infix: '',
+    dateofbirth: '',
+    status: '',
+    studentnr: '',
+    display_name: '',
   });
 
-  const [resources, setResources] = useState([]);
-  const [editedResourceTitle, setEditedResourceTitle] = useState('');
-  const [editingResourceId, setEditingResourceId] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [originalIdentifier, setOriginalIdentifier] = useState('');
 
   useEffect(() => {
-    if (userData) {
-      setProfile({
-        email: userData.email || '',
-        display_naam: userData.display_naam || '',
-        voornaam: userData.voornaam || '',
-        achternaam: userData.achternaam || '',
-      });
-
-      if (isBeheerder) {
-        setOriginalIdentifier(userData.email);
-        fetchResources(userData.email);
-      } else {
-        setOriginalIdentifier(userData.display_naam);
-      }
+    if (!token) {
+      Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
+      router.push('/login');
+      return;
     }
-  }, [userData]);
 
-  const fetchResources = async (email) => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/get_resources', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+    setIsAdmin(userType === 'admin' || userType === 'beheerder');
 
-      const json = await response.json();
+    const fetchProfile = async () => {
+      try {
+        const resp = await fetch('http://127.0.0.1:5000/get_profile', {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await resp.json();
 
-      if (json.success) {
-        setResources(json.resources);
-      } else {
-        console.error('Fout bij ophalen van resources:', json.message);
+        if (json.success) {
+          const data = json.profile;
+          setProfile({
+            email: data.email || '',
+            fname: data.fname || data.first_name || '',
+            lname: data.lname || data.last_name || '',
+            infix: data.infix || '',
+            dateofbirth: data.dateofbirth || '',
+            status: data.status || '',
+            studentnr: data.studentnr || '',
+            display_name: data.display_name || '',
+            password: '',
+          });
+          setOriginalIdentifier(data.email || data.display_name || '');
+          setLoading(false);
+        } else {
+          Alert.alert('Fout', json.message || 'Profiel laden mislukt');
+          setLoading(false);
+        }
+      } catch (error) {
+        Alert.alert('Fout', 'Netwerkfout bij laden profiel');
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Network error bij resources ophalen:', err);
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    const requestBody = {
-      voornaam: profile.voornaam,
-      achternaam: profile.achternaam,
     };
 
-    if (isBeheerder) {
-      requestBody.original_email = originalIdentifier;
-      requestBody.email = profile.email;
+    fetchProfile();
+  }, [token, userType]);
+
+  const handleSaveProfile = async () => {
+    const body = {
+      fname: profile.fname,
+      lname: profile.lname,
+      infix: profile.infix,
+      dateofbirth: profile.dateofbirth,
+      status: profile.status,
+      password: profile.password,
+    };
+
+    if (isAdmin) {
+      body.original_email = originalIdentifier;
+      body.email = profile.email;
     } else {
-      requestBody.original_display_naam = originalIdentifier;
-      requestBody.display_naam = profile.display_naam;
+      body.original_display_name = originalIdentifier;
+      body.display_name = profile.display_name;
+      body.studentnr = profile.studentnr;
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/update_profile', {
+      const resp = await fetch('http://127.0.0.1:5000/update_profile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
       });
-
-      const json = await response.json();
+      const json = await resp.json();
 
       if (json.success) {
-        setOriginalIdentifier(isBeheerder ? profile.email : profile.display_naam);
-        Alert.alert("Succes", "Profiel succesvol aangepast.");
+        setOriginalIdentifier(isAdmin ? profile.email : profile.display_name);
+        setProfile(prev => ({ ...prev, password: '' }));
+        Alert.alert('Succes', 'Profiel succesvol bijgewerkt.');
       } else {
-        Alert.alert("Fout", json.message || "Profiel bijwerken mislukt.");
+        Alert.alert('Fout', json.message || 'Bijwerken mislukt.');
       }
     } catch (error) {
-      console.error('Fout bij opslaan profiel:', error);
-      Alert.alert("Fout", "Er is een fout opgetreden bij het opslaan van het profiel.");
+      Alert.alert('Fout', 'Netwerkfout bij opslaan profiel');
     }
   };
 
-  const handleSaveResource = async (resourceId, newTitle) => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/update_resource', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resource_id: resourceId,
-          title: newTitle,
-        }),
-      });
-
-      const json = await response.json();
-
-      if (json.success) {
-        setResources(prev =>
-          prev.map(r =>
-            r.id === resourceId ? { ...r, title: newTitle } : r
-          )
-        );
-        setEditingResourceId(null);
-        Alert.alert('Succes', 'Resource succesvol bijgewerkt');
-      } else {
-        Alert.alert('Fout', json.message || 'Bijwerken resource mislukt');
-      }
-    } catch (error) {
-      console.error('Fout bij bijwerken resource:', error);
-      Alert.alert('Fout', 'Netwerkfout bij het bijwerken van resource');
-    }
-  };
-
-  const handleEditResource = (id) => {
-    const resource = resources.find(r => r.id === id);
-    if (resource) {
-      setEditingResourceId(id);
-      setEditedResourceTitle(resource.title);
-    }
-  };
-
-  const handleDeleteResource = async (id) => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/delete_resource', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ resource_id: id }),
-      });
-
-      const json = await response.json();
-      if (json.success) {
-        setResources((prev) => prev.filter((r) => r.id !== id));
-      } else {
-        console.log('Failed to delete:', json.message);
-      }
-    } catch (err) {
-      console.error('Delete error:', err);
-    }
-  };
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#d2214b" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Profiel</Text>
 
-      {!isBeheerder && (
+      {isAdmin && (
         <TextInput
           style={styles.input}
-          value={profile.display_naam}
-          onChangeText={(text) => setProfile({ ...profile, display_naam: text })}
-          placeholder="Gebruikersnaam"
-        />
-      )}
-
-      {isBeheerder && (
-        <TextInput
-          style={styles.input}
+          placeholder="E-mailadres"
           value={profile.email}
-          onChangeText={(text) => setProfile({ ...profile, email: text })}
-          placeholder="Email"
+          onChangeText={text => setProfile({ ...profile, email: text })}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
+      )}
+
+      {!isAdmin && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Display Name"
+            value={profile.display_name}
+            onChangeText={text => setProfile({ ...profile, display_name: text })}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Studentnummer"
+            value={profile.studentnr}
+            onChangeText={text => setProfile({ ...profile, studentnr: text })}
+            keyboardType="numeric"
+          />
+        </>
       )}
 
       <TextInput
         style={styles.input}
-        value={profile.voornaam}
-        onChangeText={(text) => setProfile({ ...profile, voornaam: text })}
         placeholder="Voornaam"
+        value={profile.fname}
+        onChangeText={text => setProfile({ ...profile, fname: text })}
       />
+
       <TextInput
         style={styles.input}
-        value={profile.achternaam}
-        onChangeText={(text) => setProfile({ ...profile, achternaam: text })}
-        placeholder="Achternaam"
+        placeholder="Tussenvoegsel"
+        value={profile.infix}
+        onChangeText={text => setProfile({ ...profile, infix: text })}
       />
 
-      <Pressable style={styles.primaryButton} onPress={handleSaveProfile}>
-        <Text style={styles.primaryButtonText}>Opslaan</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Achternaam"
+        value={profile.lname}
+        onChangeText={text => setProfile({ ...profile, lname: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Geboortedatum (YYYY-MM-DD)"
+        value={profile.dateofbirth}
+        onChangeText={text => setProfile({ ...profile, dateofbirth: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Status"
+        value={profile.status}
+        onChangeText={text => setProfile({ ...profile, status: text })}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Wachtwoord"
+        value={profile.password}
+        onChangeText={text => setProfile({ ...profile, password: text })}
+        secureTextEntry
+      />
+
+      <Pressable style={styles.button} onPress={handleSaveProfile}>
+        <Text style={styles.buttonText}>Opslaan</Text>
       </Pressable>
-
-      {isBeheerder && resources.map(resource => (
-        <View key={resource.id} style={styles.resourceRow}>
-          {editingResourceId === resource.id ? (
-            <TextInput
-              style={styles.input}
-              value={editedResourceTitle}
-              onChangeText={setEditedResourceTitle}
-            />
-          ) : (
-            <Text style={styles.resourceText}>{resource.title}</Text>
-          )}
-
-          <View style={styles.buttonGroup}>
-            {editingResourceId === resource.id ? (
-              <Pressable
-                style={styles.primaryButton}
-                onPress={() => handleSaveResource(resource.id, editedResourceTitle)}
-              >
-                <Text style={styles.primaryButtonText}>Opslaan</Text>
-              </Pressable>
-            ) : (
-              <Pressable
-                style={styles.secondaryButton}
-                onPress={() => handleEditResource(resource.id)}
-              >
-                <Text style={styles.buttonText}>Bewerken</Text>
-              </Pressable>
-            )}
-
-            <Pressable
-              style={styles.dangerButton}
-              onPress={() => handleDeleteResource(resource.id)}
-            >
-              <Text style={styles.buttonText}>Verwijderen</Text>
-            </Pressable>
-          </View>
-        </View>
-      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-    flexGrow: 1,
-  },
+  container: { flexGrow: 1, padding: 20, backgroundColor: '#fdf3e8' },
   header: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: '700',
     marginBottom: 24,
+    textAlign: 'center',
+    color: '#03193c',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
-    backgroundColor: '#fff',
+    height: 48,
+    borderBottomWidth: 2,
+    borderColor: '#03193c',
+    marginBottom: 24,
+    fontSize: 16,
+    paddingHorizontal: 8,
+    color: '#03193c',
   },
-  primaryButton: {
-    backgroundColor: '#0d6efd',
-    paddingVertical: 12,
-    borderRadius: 6,
+  button: {
+    backgroundColor: '#d2214b',
+    paddingVertical: 14,
+    borderRadius: 24,
     alignItems: 'center',
-    marginBottom: 16,
+    marginTop: 20,
   },
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  resourceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  resourceText: {
-    fontSize: 16,
-    flex: 1,
-    marginRight: 10,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  secondaryButton: {
-    backgroundColor: '#6c757d',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  dangerButton: {
-    backgroundColor: '#dc3545',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
