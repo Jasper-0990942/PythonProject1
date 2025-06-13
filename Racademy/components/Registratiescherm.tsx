@@ -47,7 +47,7 @@ export default function Registratiescherm() {
             }
 
             Alert.alert('Gelukt!', `Welkom ${fname}!`);
-            router.push('/login');
+            router.push('../Login');
         } catch (error) {
             Alert.alert('Fout', 'Er ging iets mis bij het registreren.');
         }
