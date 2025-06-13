@@ -1,15 +1,18 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Login from '@/components/Login';
-import ProfileScreen from '@/components/ProfileScreen';
+import {SafeAreaView, ScrollView, View} from 'react-native'
+import Home from "@/features/Home/Home";
 
-const Stack = createNativeStackNavigator();
 
-export default function Navigator() {
-  return (
-    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-    </Stack.Navigator>
-  );
+export default function HomeScreen() {
+    return (
+
+        <ScrollView>
+            <SafeAreaView className="flex-1 bg-white">
+                <View className="bg-neutral-50 items-center h-screen">
+
+                    <Home/>
+
+                </View>
+            </SafeAreaView>
+        </ScrollView>
+    );
 }
