@@ -17,7 +17,7 @@ Navigeer naar het juiste project door het commando hieronder uit te voeren in de
 cd wp4-2025-react-1b5-bamischijf
 ```
 ## 3. Eigen IP
-
+Voer bij login.jsx op de plaats van 'http://127.0.0.1:5000' je eigen ip adres in die verschijnt in de terminal als je je flask opent.
 
 ## 4. Open Docker
 Open de Docker Desktopp applicatie op jouw laptop of computer. Mocht je deze nog niet hebben moet je deze even downloaden vanaf het internet.
