@@ -23,7 +23,7 @@ def get_db_connection():
 def index():
     return "API is running", 200
 
-@app.route('/', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     login_input = data.get('loginInput')
