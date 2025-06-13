@@ -1,5 +1,5 @@
 from flask import jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from models.database_connection import Database
 
 class Users:
