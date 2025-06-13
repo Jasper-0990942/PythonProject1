@@ -16,7 +16,8 @@ Navigeer naar het juiste project door het commando hieronder uit te voeren in de
 ```shell
 cd wp4-2025-react-1b5-bamischijf
 ```
-## 3. 
+## 3. Eigen IP
+
 
 ## 4. Open Docker
 Open de Docker Desktopp applicatie op jouw laptop of computer. Mocht je deze nog niet hebben moet je deze even downloaden vanaf het internet.
@@ -46,12 +47,8 @@ Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web t
 # Inloggegevens
 
 ### Admin
-Gebruikersnaam: 
-Wachtwoord:
-
-### User
-Gebruikersnaam:
-Wachtwoord:
+Gebruikersnaam: john@pork.nl
+Wachtwoord: halal
 
 # Bronvermelding
 - (Using A ScrollView · React Native, 2025)
