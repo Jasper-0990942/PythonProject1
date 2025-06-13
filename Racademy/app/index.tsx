@@ -31,7 +31,7 @@ function Login() {
         alert(`Login successful as ${data.type}!`);
 
         router.push({
-          pathname: '/Profile',
+          pathname: '/gebruikersoverzicht',
           params: { userData: JSON.stringify(data) },
         });
 
