@@ -4,14 +4,11 @@ from flask_cors import CORS
 import jwt
 import datetime
 from functools import wraps
-from flask import request
+
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'biem'
 DATABASE = 'database/database.db'
-
-from functools import wraps
-from flask import request
 
 def token_required(user_type=None):
     def decorator(f):
@@ -50,7 +47,6 @@ def index():
 @app.route('/', methods=['POST'])
 def login():
     data = request.get_json()
-    print("Login attempt data:", data)
     login_input = data.get('loginInput')
     wachtwoord = data.get('wachtwoord')
 
@@ -79,7 +75,6 @@ def login():
             **beheerder_data
         })
 
-
     gebruiker = conn.execute(
         'SELECT * FROM gebruikers WHERE display_naam = ? AND wachtwoord = ?',
         (login_input, wachtwoord)
@@ -104,7 +99,9 @@ def login():
 
     return jsonify({"success": False, "message": "Onjuiste gebruikersnaam/wachtwoord"}), 401
 
+
 @app.route('/delete_resource', methods=['POST'])
+@token_required()
 def delete_resource():
     data = request.get_json()
     resource_id = data.get('resource_id')
@@ -118,7 +115,9 @@ def delete_resource():
     conn.close()
     return jsonify({"success": True, "message": "Resource deleted"}), 200
 
+
 @app.route('/update_resource', methods=['POST'])
+@token_required()
 def update_resource():
     data = request.get_json()
 
@@ -144,6 +143,7 @@ def update_resource():
 
 
 @app.route('/update_profile', methods=['POST'])
+@token_required()
 def update_profile():
     data = request.get_json()
 
@@ -182,6 +182,7 @@ def update_profile():
 
 
 @app.route('/get_resources', methods=['POST'])
+@token_required()
 def get_resources():
     data = request.get_json()
     email = data.get('email')
@@ -195,7 +196,6 @@ def get_resources():
 
     resource_list = [dict(r) for r in resources]
     return jsonify({'success': True, 'resources': resource_list}), 200
-
 
 
 if __name__ == '__main__':
