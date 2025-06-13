@@ -1,13 +1,15 @@
 // app/users/[id].tsx
 
+import { useRouter } from "expo-router";
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform , Pressable } from 'react-native';
 
 export default function UserDetails() {
     const { id, role } = useLocalSearchParams();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchUser() {
@@ -66,6 +68,11 @@ export default function UserDetails() {
                         <Text className="text-base text-gray-700">Rol:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.role}</Text>
                     </View>
+                </View>
+                <View className="w-full max-w-md self-center mb-4">
+                    <Pressable onPress={() => router.push('http://localhost:8081/gebruikersoverzicht')} className="flex-row items-center">
+                        <Text className="text-hrRed text-base">&larr; Terug</Text>
+                    </Pressable>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
