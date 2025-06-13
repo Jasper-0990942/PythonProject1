@@ -59,6 +59,13 @@ Wachtwoord:
 - (Net Ninja, 2020)
 - (Themes, z.d.)
 - (ChatGPT, z.d.)
+- (YouTube, z.d.)
+- (Zero Degree Coder, 2024)
+- (React Native Profile Examples And Templates, z.d.)
+- (Truong, 2024)
+- (Markov, 2024)
+- (UseContext – React, z.d.)
+- (Code With Nomi, 2023)
 
 # Bronnenlijst
 - Using a ScrollView · React Native. (2025, 14 april). https://reactnative.dev/docs/using-a-scrollview
@@ -66,3 +73,10 @@ Wachtwoord:
 - Net Ninja. (2020, 21 december). Full React Tutorial #1 - Introduction [Video]. YouTube. https://www.youtube.com/watch?v=j942wKiXFu8 (hele playlist gebruikt/bekeken maar ik ga niet 32 bronnen toevoegen over hetzelfde)
 - Themes. (z.d.). https://www.nativewind.dev/docs/guides/themes
 - ChatGPT. (z.d.). ChatGPT. https://chatgpt.com (gebruikt voor debuggen)
+- YouTube. (z.d.). https://www.youtube.com/shorts/ML0DuF9Qgis
+- Zero Degree Coder. (2024, 8 september). Profile Screen in React Native || React Native Profile Screen Design With Light and Dark Theme [Video]. YouTube. https://www.youtube.com/watch?v=o3eaTF2j_IA
+- React native profile examples and templates. (z.d.). https://www.bootdey.com/react-native/tagged/profile
+- Truong, M. (2024, 13 februari). Simplifying JWT Tokens for a React-Flask Application. Medium. https://medium.com/@meagantruong1/simplifying-jwt-tokens-for-a-react-flask-application-e765b3e290e3
+- Markov, S. (2024, 18 november). Fortify your Full-Stack React & React Native App: JWT Authentication and Token Rotation. Medium. https://medium.com/@markovsve/fortify-your-full-stack-react-react-native-app-jwt-authentication-and-token-rotation-ad8c919a412f
+- UseContext – React. (z.d.). https://react.dev/reference/react/useContext
+- Code With Nomi. (2023, 13 september). 🔴 Login & SignUp UI in React Native Reanimated | React Native Projects | Beginners Tutorial [Video]. YouTube. https://www.youtube.com/watch?v=M8u_w6_o584
