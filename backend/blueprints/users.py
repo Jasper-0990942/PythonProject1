@@ -55,6 +55,6 @@ def get_user_by_role_and_id(role, user_id):
         user_model.con.close()
         if row:
             return jsonify({'user': dict(row)})
-        
+
     return {'error': 'User not found'}, 404
 
