@@ -54,3 +54,15 @@ Gebruikersnaam:
 Wachtwoord:
 
 # Bronvermelding
+- (Using A ScrollView · React Native, 2025)
+- (Net Ninja, 2025)
+- (Net Ninja, 2020)
+- (Themes, z.d.)
+- (ChatGPT, z.d.)
+
+# Bronnenlijst
+- Using a ScrollView · React Native. (2025, 14 april). https://reactnative.dev/docs/using-a-scrollview
+- Net Ninja. (2025, 9 april). Complete ReAct Native Tutorial #1 - Introduction & Setup (ExPO) [Video]. YouTube. https://www.youtube.com/watch?v=J2j1yk-34OY
+- Net Ninja. (2020, 21 december). Full React Tutorial #1 - Introduction [Video]. YouTube. https://www.youtube.com/watch?v=j942wKiXFu8
+- Themes. (z.d.). https://www.nativewind.dev/docs/guides/themes
+- ChatGPT. (z.d.). ChatGPT. https://chatgpt.com (gebruikt voor debuggen)
