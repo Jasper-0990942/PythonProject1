@@ -19,8 +19,7 @@ export default function UserDetails() {
                 console.error('Fout bij ophalen gebruiker:', error);
             } finally {
                 setLoading(false);
-            }
-        }
+            }}
 
         if (id && role) fetchUser();
     }, [id, role]);
@@ -30,28 +29,24 @@ export default function UserDetails() {
             <View className="flex-1 items-center justify-center bg-white">
                 <ActivityIndicator size="large" color="#b30000" />
             </View>
-        );
-    }
+        );}
 
     if (!user) {
         return (
             <View className="flex-1 items-center justify-center bg-white">
                 <Text className="text-gray-700">Gebruiker niet gevonden.</Text>
             </View>
-        );
-    }
+        );}
 
     return (
         <KeyboardAvoidingView
             className="flex-1 bg-white"
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        >
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
             <ScrollView contentContainerStyle={{ padding: 24 }} keyboardShouldPersistTaps="handled">
                 <View className="items-center mb-6">
                     <Text className="text-4xl font-bold text-hrRed">Gebruiker</Text>
                 </View>
-
                 <View className="w-full max-w-md self-center space-y-4">
                     <View>
                         <Text className="text-base text-gray-700">Naam:</Text>
@@ -59,17 +54,14 @@ export default function UserDetails() {
                             {user.fname} {user.infix ? user.infix + ' ' : ''}{user.lname}
                         </Text>
                     </View>
-
                     <View>
                         <Text className="text-base text-gray-700">Geboortedatum:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.dateofbirth}</Text>
                     </View>
-
                     <View>
                         <Text className="text-base text-gray-700">Status:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.status}</Text>
                     </View>
-
                     <View>
                         <Text className="text-base text-gray-700">Rol:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.role}</Text>
@@ -77,5 +69,4 @@ export default function UserDetails() {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-    );
-}
+    );}
