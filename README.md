@@ -2,6 +2,7 @@
 Template voor WP4 opdracht 2025 "RACademic". Vul dit document aan zoals beschreven in eisen rondom opleveren (zie CASUS.md).
 
 # ERD
+![erd](https://github.com/user-attachments/assets/eced82d4-8704-4fbf-aeb1-f36faa493961)
 
 
 # Installatie requirements
