@@ -64,7 +64,6 @@ def login():
 
     conn = get_db_connection()
 
-    # Try admin first
     admin = conn.execute(
         'SELECT * FROM admins WHERE email = ? AND password = ?',
         (login_input, password)
@@ -87,7 +86,6 @@ def login():
             'user': admin_data
         })
 
-    # Try user next
     user = conn.execute(
         'SELECT * FROM users WHERE display_name = ? AND password = ?',
         (login_input, password)

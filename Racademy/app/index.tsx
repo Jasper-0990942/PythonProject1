@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import asyncstorage from '@react-native-async-storage/async-storage';
 
 import logo from '../assets/images/hogeschool-rotterdam.png';
 
@@ -28,7 +29,13 @@ function Login() {
       console.log('Login response:', data);
 
       if (response.ok && data.success) {
-        alert(`Login successful as ${data.type}!`);
+        await asyncstorage.multiSet([
+            ['authToken', data.token],
+            ['userType', data.type],
+        
+        ]);
+        
+        Alert.alert('Succe)
 
         router.push({
           pathname: '/gebruikersoverzicht',
