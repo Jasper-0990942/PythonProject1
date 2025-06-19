@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import asyncstorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 import logo from '../assets/images/hogeschool-rotterdam.png';
 
@@ -35,12 +36,9 @@ function Login() {
         
         ]);
         
-        Alert.alert('Succe)
+        Alert.alert('Succes', `ingelogd als ${data.type}!`);
 
-        router.push({
-          pathname: '/gebruikersoverzicht',
-          params: { userData: JSON.stringify(data) },
-        });
+        router.push('/gebruikersoverzicht');
 
       } else {
         alert(data.message || 'Invalid credentials');
