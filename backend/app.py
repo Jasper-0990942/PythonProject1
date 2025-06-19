@@ -185,12 +185,14 @@ def update_resource():
 @token_required()
 def update_profile():
     data = request.get_json()
-    print('Received data:', data)
+    user = request.user  # Decoded JWT
+
+    conn = get_db_connection()
 
     # Admin update
-    if 'original_email' in data:
-        original_email = data.get('original_email')
-        email = data.get('email')
+    if user['type'] == 'admin':
+        email = user['email']
+        new_email = data.get('email')
         password = data.get('password')
         fname = data.get('fname')
         infix = data.get('infix')
@@ -198,24 +200,21 @@ def update_profile():
         dateofbirth = data.get('dateofbirth')
         status = data.get('status')
 
-        if not original_email:
-            return jsonify({'success': False, 'message': 'original_email is required'}), 400
-
-        conn = get_db_connection()
         conn.execute(
             """UPDATE admins
                SET email = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
                WHERE email = ?""",
-            (email, password, fname, infix, lname, dateofbirth, status, original_email)
+            (new_email, password, fname, infix, lname, dateofbirth, status, email)
         )
         conn.commit()
         conn.close()
 
         return jsonify({'success': True, 'message': 'Admin profile updated'}), 200
 
-    elif 'original_display_name' in data:
-        original_display_name = data.get('original_display_name')
-        display_name = data.get('display_name')
+    # User update
+    elif user['type'] == 'user':
+        display_name = user['display_name']
+        new_display_name = data.get('display_name')
         studentnr = data.get('studentnr')
         password = data.get('password')
         fname = data.get('fname')
@@ -224,22 +223,18 @@ def update_profile():
         dateofbirth = data.get('dateofbirth')
         status = data.get('status')
 
-        if not original_display_name:
-            return jsonify({'success': False, 'message': 'original_display_name is required'}), 400
-
-        conn = get_db_connection()
         conn.execute(
             """UPDATE users
                SET display_name = ?, studentnr = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
                WHERE display_name = ?""",
-            (display_name, studentnr, password, fname, infix, lname, dateofbirth, status, original_display_name)
+            (new_display_name, studentnr, password, fname, infix, lname, dateofbirth, status, display_name)
         )
         conn.commit()
         conn.close()
 
         return jsonify({'success': True, 'message': 'User profile updated'}), 200
 
-    return jsonify({'success': False, 'message': 'No valid identifier provided'}), 400
+    return jsonify({'success': False, 'message': 'Invalid user type'}), 400
 
 
 @app.route('/get_resources', methods=['POST'])

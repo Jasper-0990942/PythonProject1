@@ -26,9 +26,12 @@ export default function ProfileScreen() {
 useEffect(() => {
   const initialize = async () => {
     try {
-      const tokenValue = await AsyncStorage.getItem('token');
+      const tokenValue = await AsyncStorage.getItem('authToken');
       const userDataString = await AsyncStorage.getItem('userData');
       const userData = userDataString ? JSON.parse(userDataString) : null;
+      const userType = await AsyncStorage.getItem('userType');
+
+
 
       if (!tokenValue || !userData) {
         Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
@@ -36,10 +39,10 @@ useEffect(() => {
         return;
       }
 
-      setIsAdmin(userData.type === 'admin' || userData.type === 'beheerder');
+      setIsAdmin(userData.type === 'admin');
 
-      // Fetch profile
-      const resp = await fetch('http://127.0.0.1:5000/get_profile', {
+
+      const resp = await fetch('http://127.0.0.1:5000/profile', {
         method: 'GET',
         headers: { Authorization: `Bearer ${tokenValue}` },
       });
@@ -100,7 +103,7 @@ useEffect(() => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenValue}`,
         },
         body: JSON.stringify(body),
       });
