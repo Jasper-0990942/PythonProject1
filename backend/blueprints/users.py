@@ -9,16 +9,16 @@ users_bp = Blueprint('users_bp', __name__)
 @users_bp.post('/register')
 @cross_origin()
 def create_user():
-    display_name = 'jannie'
-    studentnr = request.json["studentnr"]
+    display_name = request.json["studentnr"]
     fname = request.json["fname"]
     lname = request.json["lname"]
     password = request.json["password"]
     dateofbirth = request.json["dateofbirth"]
     email = request.json["email"]
+    studentnr = request.json["studentnr"]
     status = 'active'
     user_model = Users()
-    new_user = user_model.add_user(display_name, studentnr, fname, lname, password, dateofbirth, status)
+    new_user = user_model.add_user(display_name, email, fname, lname, password, dateofbirth,studentnr, status)
     return {'successfull': new_user, 'success': True}, 201
 
 

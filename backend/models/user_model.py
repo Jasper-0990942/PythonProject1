@@ -12,7 +12,7 @@ class Users:
             "INSERT INTO users (display_name, studentnr, fname, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (display_name, studentnr, fname, lname, generate_password_hash(password), dateofbirth, status))
         self.con.commit()
-        return dict(result)
+        return True
 
     def get_all_users(self):
         db = Database()
