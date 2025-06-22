@@ -87,3 +87,21 @@ def get_user_by_id(self, user_id):
     row = cursor.fetchone()
     con.close()
     return dict(row) if row else None
+
+def block_user_by_id(self, role, user_id):
+    try:
+        if role == 'user':
+            self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
+        elif role == 'admin':
+            self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
+        else:
+            return False
+
+        if self.cursor.rowcount == 0:
+            return False
+
+        self.con.commit()
+        return True
+    except Exception as e:
+        print("Fout bij blokkeren:", e)
+        return False
