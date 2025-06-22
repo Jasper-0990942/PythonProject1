@@ -16,11 +16,20 @@ def create_user():
     dateofbirth = request.json["dateofbirth"]
     email = request.json["email"]
     studentnr = request.json["studentnr"]
-    status = 'active'
+    status = 'actief'
     user_model = Users()
     new_user = user_model.add_user(display_name, email, fname, lname, password, dateofbirth,studentnr, status)
     return {'successfull': new_user, 'success': True}, 201
 
+@users_bp.patch('/<string:role>/<int:user_id>/block')
+@cross_origin()
+def block_user(role, user_id):
+    user_model = Users()
+    success = user_model.block_user_by_id(role, user_id)
+    if success:
+        return {'message': 'Gebruiker succesvol geblokkeerd.', 'success': True}, 200
+    else:
+        return {'error': 'Gebruiker niet gevonden of fout bij blokkeren.'}, 404
 
 
 @users_bp.get('/apart')
