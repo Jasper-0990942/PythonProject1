@@ -3,7 +3,7 @@
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform , Pressable } from 'react-native';
+import { View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform , Pressable, Alert} from 'react-native';
 
 export default function UserDetails() {
     const { id, role } = useLocalSearchParams();
@@ -25,6 +25,19 @@ export default function UserDetails() {
 
         if (id && role) fetchUser();
     }, [id, role]);
+
+    const blockUser = async () => {
+        try {
+            const res = await fetch(`http://localhost:5000/users/${role}/${id}/block`, {method: 'PATCH',});
+            if (!res.ok) {
+            Alert.alert("Gebruiker is nu geblokkeerd.");
+            setUser({ ...user, status: 'geblokkeerd' });
+            } else {
+                Alert.alert("Gebruiker blokkeren in niet gelukt.");
+            }
+        } catch (error) {
+            console.error("Fout bij blokkeren van gebruiker:", error);
+            Alert.alert("Gebruiker blokkeren in niet gelukt.");}};
 
     if (loading) {
         return (
@@ -68,6 +81,11 @@ export default function UserDetails() {
                         <Text className="text-base text-gray-700">Rol:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.role}</Text>
                     </View>
+                </View>
+                <View className="w-full max-w-md self-center mt-6">
+                    <Pressable onPress={blockUser} className="bg-hrRed p-3 rounded-xl">
+                        <Text className="text-white text-center font-semibold">Blokkeer Gebruiker</Text>
+                    </Pressable>
                 </View>
                 <View className="w-full max-w-md self-center mb-4">
                     <Pressable onPress={() => router.push('http://localhost:8081/gebruikersoverzicht')} className="flex-row items-center">
