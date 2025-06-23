@@ -11,6 +11,7 @@ users_bp = Blueprint('users_bp', __name__)
 def create_user():
     display_name = request.json["studentnr"]
     fname = request.json["fname"]
+    infix = request.json.get["infix", ""]
     lname = request.json["lname"]
     password = request.json["password"]
     dateofbirth = request.json["dateofbirth"]
@@ -18,7 +19,7 @@ def create_user():
     studentnr = request.json["studentnr"]
     status = 'actief'
     user_model = Users()
-    new_user = user_model.add_user(display_name, email, fname, lname, password, dateofbirth,studentnr, status)
+    new_user = user_model.add_user(display_name, email, fname, infix, lname, password, dateofbirth,studentnr, status)
     return {'successfull': new_user, 'success': True}, 201
 
 @users_bp.patch('/<string:role>/<int:user_id>/block')
