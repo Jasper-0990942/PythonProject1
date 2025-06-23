@@ -7,10 +7,10 @@ class Users:
         database = Database()
         self.cursor, self.con = database.connect_db()
 
-    def add_user(self, display_name, studentnr, fname, infix, lname, password, dateofbirth, status):
+    def add_user(self, display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status):
         result = self.cursor.execute(
-            "INSERT INTO users (display_name, studentnr, fname, infix, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (display_name, studentnr, fname, infix, lname, generate_password_hash(password), dateofbirth, status))
+            "INSERT INTO users (display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (display_name, studentnr, fname, infix, lname, email, generate_password_hash(password), dateofbirth, status))
         self.con.commit()
         return True
 
@@ -22,7 +22,7 @@ class Users:
         cursor.execute("""
         SELECT
             user_id AS id,
-            email,
+           email,
             fname,
             infix,
             lname,

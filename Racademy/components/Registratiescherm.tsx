@@ -56,7 +56,7 @@ export default function Registratiescherm() {
             }
 
             alert('Gelukt! Welkom ${fname}!');
-            router.push('../login');
+            router.push('../Login');
         } catch (error) {
             console.error("FOUTTTT", error);
             alert('Er ging iets mis bij het registreren.');
