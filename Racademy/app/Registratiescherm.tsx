@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {View, Text, TextInput, Alert, Pressable, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
+import {View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function Registratiescherm() {
@@ -11,21 +11,29 @@ export default function Registratiescherm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const [infix, setInfix] = useState('');
 
     const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
     const router = useRouter();
 
     const aanmaakRegistratie = async () => {
+        console.log("Knop is ingedrukt");
+        console.log("Backend URL:", backendUrl);
         if (!studentnr || !dateofbirth || !password || !confirmPassword || !fname || !lname) {
-            Alert.alert("Vul alle velden in.");
+            alert("Vul alle velden in.");
+            console.log("test")
             return;
         }
         if (password !== confirmPassword) {
-            Alert.alert("Wachtwoorden komen niet overeen.");
+            alert("Wachtwoorden komen niet overeen.");
             return;
         }
         if (!studentnr || studentnr.toString().length !== 7) {
-            Alert.alert("Studentnummer moet precies 7 cijfers bevatten.");
+            alert("Studentnummer moet precies 7 cijfers bevatten.");
+            return;
+        }
+        if (error) {
+            alert("Fout");
             return;
         }
         try {
@@ -35,6 +43,7 @@ export default function Registratiescherm() {
                 body: JSON.stringify({
                     email,
                     fname,
+                    infix,
                     lname,
                     studentnr,
                     dateofbirth,
@@ -46,10 +55,13 @@ export default function Registratiescherm() {
                 throw new Error('Registratie mislukt');
             }
 
-            Alert.alert('Gelukt!', `Welkom ${fname}!`);
-            router.push('../Login');
+
+            alert('Gelukt! Welkom ${fname}!');
+            router.push('/login');
+
         } catch (error) {
-            Alert.alert('Fout', 'Er ging iets mis bij het registreren.');
+            console.error("FOUTTTT", error);
+            alert('Er ging iets mis bij het registreren.');
         }
     };
 
@@ -103,7 +115,12 @@ export default function Registratiescherm() {
                         placeholder="Voornaam"
                         onChangeText={setFname}
                     />
-
+                    <Text className="text-base text-gray-700">Tussenvoegsel:</Text>
+                    <TextInput
+                        className="border border-hrRed rounded-md p-2"
+                        placeholder="Tussenvoegsel"
+                        onChangeText={setInfix}
+                    />
                     <Text className="text-base text-gray-700">Achternaam:</Text>
                     <TextInput
                         className="border border-hrRed rounded-md p-2"
