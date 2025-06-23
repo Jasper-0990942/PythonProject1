@@ -18,6 +18,7 @@ export default function Registratiescherm() {
 
     const aanmaakRegistratie = async () => {
         console.log("Knop is ingedrukt");
+        console.log("Backend URL:", backendUrl);
         if (!studentnr || !dateofbirth || !password || !confirmPassword || !fname || !lname) {
             alert("Vul alle velden in.");
             console.log("test")
