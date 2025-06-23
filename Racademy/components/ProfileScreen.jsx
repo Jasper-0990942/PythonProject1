@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { token, userType } = useRouter();
 
   const [profile, setProfile] = useState({
     email: '',
@@ -53,8 +52,8 @@ useEffect(() => {
         const data = json.profile;
         setProfile({
           email: data.email || '',
-          fname: data.fname || data.first_name || '',
-          lname: data.lname || data.last_name || '',
+          fname: data.fname || data.fname || '',
+          lname: data.lname || data.lname || '',
           infix: data.infix || '',
           dateofbirth: data.dateofbirth || '',
           status: data.status || '',
@@ -80,6 +79,7 @@ useEffect(() => {
 
 
   const handleSaveProfile = async () => {
+    const tokenValue = await AsyncStorage.getItem('authToken');
     const body = {
       fname: profile.fname,
       lname: profile.lname,
@@ -98,7 +98,7 @@ useEffect(() => {
       body.studentnr = profile.studentnr;
     }
 
-    try {
+    try { console.log('Token being sent:', tokenValue);
       const resp = await fetch('http://127.0.0.1:5000/update_profile', {
         method: 'POST',
         headers: {

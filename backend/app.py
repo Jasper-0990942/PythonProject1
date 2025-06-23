@@ -49,7 +49,7 @@ def token_required(user_type=None):
 
 
 def get_db_connection():
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(DATABASE, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -131,7 +131,7 @@ def profile():
         if admin:
             admin_data = dict(admin)
             admin_data.pop('password', None)
-            return jsonify({'success': True, 'type': 'admin', 'user': admin_data})
+            return jsonify({'success': True, 'type': 'admin', 'profile': admin_data})
         else:
             return jsonify({'success': False, 'message': 'Admin not found'}), 404
 
@@ -141,7 +141,7 @@ def profile():
         if usr:
             user_data = dict(usr)
             user_data.pop('password', None)
-            return jsonify({'success': True, 'type': 'user', 'user': user_data})
+            return jsonify({'success': True, 'type': 'user', 'profile': user_data})
         else:
             return jsonify({'success': False, 'message': 'User not found'}), 404
 
@@ -195,7 +195,6 @@ def update_profile():
 
     conn = get_db_connection()
 
-    # Admin update
     if user['type'] == 'admin':
         email = user['email']
         new_email = data.get('email')
@@ -217,7 +216,6 @@ def update_profile():
 
         return jsonify({'success': True, 'message': 'Admin profile updated'}), 200
 
-    # User update
     elif user['type'] == 'user':
         display_name = user['display_name']
         new_display_name = data.get('display_name')
