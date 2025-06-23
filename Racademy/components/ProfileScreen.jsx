@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -22,50 +23,61 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [originalIdentifier, setOriginalIdentifier] = useState('');
 
-  useEffect(() => {
-    if (!token) {
-      Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
-      router.push('/login');
-      return;
-    }
+useEffect(() => {
+  const initialize = async () => {
+    try {
+      const tokenValue = await AsyncStorage.getItem('authToken');
+      const userDataString = await AsyncStorage.getItem('userData');
+      const userData = userDataString ? JSON.parse(userDataString) : null;
+      const userType = await AsyncStorage.getItem('userType');
 
-    setIsAdmin(userType === 'admin' || userType === 'beheerder');
 
-    const fetchProfile = async () => {
-      try {
-        const resp = await fetch('http://127.0.0.1:5000/get_profile', {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const json = await resp.json();
 
-        if (json.success) {
-          const data = json.profile;
-          setProfile({
-            email: data.email || '',
-            fname: data.fname || data.first_name || '',
-            lname: data.lname || data.last_name || '',
-            infix: data.infix || '',
-            dateofbirth: data.dateofbirth || '',
-            status: data.status || '',
-            studentnr: data.studentnr || '',
-            display_name: data.display_name || '',
-            password: '',
-          });
-          setOriginalIdentifier(data.email || data.display_name || '');
-          setLoading(false);
-        } else {
-          Alert.alert('Fout', json.message || 'Profiel laden mislukt');
-          setLoading(false);
-        }
-      } catch (error) {
-        Alert.alert('Fout', 'Netwerkfout bij laden profiel');
-        setLoading(false);
+      if (!tokenValue || !userData) {
+        Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
+        router.push('/login');
+        return;
       }
-    };
 
-    fetchProfile();
-  }, [token, userType]);
+      setIsAdmin(userData.type === 'admin');
+
+
+      const resp = await fetch('http://127.0.0.1:5000/profile', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${tokenValue}` },
+      });
+
+      const json = await resp.json();
+
+      if (json.success) {
+        const data = json.profile;
+        setProfile({
+          email: data.email || '',
+          fname: data.fname || data.first_name || '',
+          lname: data.lname || data.last_name || '',
+          infix: data.infix || '',
+          dateofbirth: data.dateofbirth || '',
+          status: data.status || '',
+          studentnr: data.studentnr || '',
+          display_name: data.display_name || '',
+          password: '',
+        });
+        setOriginalIdentifier(data.email || data.display_name || '');
+      } else {
+        Alert.alert('Fout', json.message || 'Profiel laden mislukt');
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Fout', 'Netwerkfout bij laden profiel');
+      setLoading(false);
+    }
+  };
+
+  initialize();
+}, []);
+
 
   const handleSaveProfile = async () => {
     const body = {
@@ -91,7 +103,7 @@ export default function ProfileScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenValue}`,
         },
         body: JSON.stringify(body),
       });
