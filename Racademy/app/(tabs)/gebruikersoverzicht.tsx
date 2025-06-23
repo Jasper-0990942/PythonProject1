@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Pressable, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, {useEffect, useState} from 'react';
+import {View, Text, ActivityIndicator, Pressable, ScrollView, TextInput, Modal, TouchableOpacity} from 'react-native';
+import {useRouter} from 'expo-router';
 
 type User = {
     id: number;
@@ -16,6 +16,11 @@ export default function OverzichtUsers() {
     const router = useRouter();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [roleFilter, setRoleFilter] = useState<string>('');
+    const [pickerZien, setPickerZien] = useState(false);
+    const roles = ['user', 'admin'];
+    const [nameFilter, setNameFilter] = useState<string>('');
+    const [studentNummerFilter, setStudentNummerFilter] = useState<string>('');
 
     useEffect(() => {
         async function fetchUsers() {
@@ -38,23 +43,68 @@ export default function OverzichtUsers() {
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center bg-white">
-                <ActivityIndicator size="large" color="#b30000" />
+                <ActivityIndicator size="large" color="#b30000"/>
             </View>
         );}
+
+    const filteredUsers = users.filter((user) => {
+        const fullName = `${user.fname} ${user.infix ?? ''} ${user.lname}`.toLowerCase();
+        const matchesName = fullName.includes(nameFilter.toLowerCase());
+        const matchesRole = roleFilter === '' || user.role === roleFilter;
+        const matchesStudentNummer =
+            studentNummerFilter === '' || user.id.toString().includes(studentNummerFilter);
+
+        return matchesName && matchesRole && matchesStudentNummer;
+    });
 
     return (
         <ScrollView className="flex-1 bg-white px-6 pt-6">
             <View className="items-center mb-6">
                 <Text className="text-3xl font-bold text-hrRed">Gebruikersoverzicht</Text>
             </View>
+            <View className="space-y-3 mb-6">
+                <TextInput
+                    placeholder="Filter op naam"
+                    value={nameFilter}
+                    onChangeText={setNameFilter}
+                    className="border rounded-md p-2 border-gray-300"/>
+                <TextInput
+                    placeholder="Filter op studentnummer"
+                    value={studentNummerFilter}
+                    onChangeText={setStudentNummerFilter}
+                    keyboardType="numeric"
+                    className="border rounded-md p-2 border-gray-300"/>
+                <Pressable
+                    onPress={() => setPickerZien(true)}
+                    className="border border-gray-300 p-2 rounded-md"
+                >
+                    <Text>{roleFilter ? roleFilter : 'Filter op rol'}</Text>
+                </Pressable>
+                <Modal visible={pickerZien} transparent animationType="fade">
+                    <TouchableOpacity
+                        className="flex-1 justify-center items-center bg-black/50"
+                        onPress={() => setPickerZien(false)}>
+                        <View className="bg-white p-4 rounded-md w-64">
+                            <TouchableOpacity onPress={() => {
+                                setRoleFilter('');
+                                setPickerZien(false);}}>
+                                <Text className="py-2">Alle rollen</Text>
+                            </TouchableOpacity>
+                            {roles.map((role) => (
+                                <TouchableOpacity key={role} onPress={() => {
+                                    setRoleFilter(role);
+                                    setPickerZien(false);}}>
+                                    <Text className="py-2 capitalize">{role}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </TouchableOpacity>
+                </Modal>
+            </View>
             <View className="space-y-4">
-                {users.map((user) => (
-                    <View
-                        key={user.id}
-                        className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
-                        <Text className="text-lg font-semibold text-gray-800">
-                            {user.fname} {user.infix ?? ''} {user.lname}
-                        </Text>
+                {filteredUsers.map((user) => (
+                    <View key={user.id} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
+                        <Text className="text-lg font-semibold text-gray-800">{user.fname} {user.infix ?? ''} {user.lname}</Text>
                         <Text className="text-sm text-gray-600">{user.email} ({user.role})</Text>
                         <Pressable
                             onPress={() => router.push(`/users/${user.role}/${user.id}`)}
