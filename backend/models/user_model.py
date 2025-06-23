@@ -7,10 +7,10 @@ class Users:
         database = Database()
         self.cursor, self.con = database.connect_db()
 
-    def add_user(self, display_name, studentnr, fname, lname, password, dateofbirth, status):
+    def add_user(self, display_name, studentnr, fname, infix, lname, password, dateofbirth, status):
         result = self.cursor.execute(
-            "INSERT INTO users (display_name, studentnr, fname, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (display_name, studentnr, fname, lname, generate_password_hash(password), dateofbirth, status))
+            "INSERT INTO users (display_name, studentnr, fname, infix, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (display_name, studentnr, fname, infix, lname, generate_password_hash(password), dateofbirth, status))
         self.con.commit()
         return True
 
