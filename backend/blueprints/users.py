@@ -10,16 +10,16 @@ users_bp = Blueprint('users_bp', __name__)
 @cross_origin()
 def create_user():
     display_name = request.json["studentnr"]
+    studentnr = request.json["studentnr"]
     fname = request.json["fname"]
     infix = request.json["infix"]
     lname = request.json["lname"]
+    email = request.json["email"]
     password = request.json["password"]
     dateofbirth = request.json["dateofbirth"]
-    email = request.json["email"]
-    studentnr = request.json["studentnr"]
     status = 'actief'
     user_model = Users()
-    new_user = user_model.add_user(display_name, fname, infix, lname, email, password, dateofbirth, studentnr, status)
+    new_user = user_model.add_user(display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status)
     return {'successfull': new_user, 'success': True}, 201
 
 @users_bp.patch('/<string:role>/<int:user_id>/block')
