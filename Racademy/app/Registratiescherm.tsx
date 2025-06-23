@@ -55,8 +55,10 @@ export default function Registratiescherm() {
                 throw new Error('Registratie mislukt');
             }
 
-            alert('Gelukt! Welkom ${user.fname}!');
-            router.push('');
+
+            alert('Gelukt! Welkom ${fname}!');
+            router.push('/login');
+
         } catch (error) {
             console.error("FOUTTTT", error);
             alert('Er ging iets mis bij het registreren.');
