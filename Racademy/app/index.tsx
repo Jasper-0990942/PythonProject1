@@ -33,6 +33,7 @@ function Login() {
         await asyncstorage.multiSet([
             ['authToken', data.token],
             ['userType', data.type],
+          ['userData', JSON.stringify(data.user)],
         
         ]);
         
