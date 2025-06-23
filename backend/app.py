@@ -189,7 +189,6 @@ def update_profile():
 
     conn = get_db_connection()
 
-    # Admin update
     if user['type'] == 'admin':
         email = user['email']
         new_email = data.get('email')
@@ -211,7 +210,6 @@ def update_profile():
 
         return jsonify({'success': True, 'message': 'Admin profile updated'}), 200
 
-    # User update
     elif user['type'] == 'user':
         display_name = user['display_name']
         new_display_name = data.get('display_name')
