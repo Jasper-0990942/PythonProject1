@@ -64,14 +64,32 @@ export default function UserDetails() {
                 </View>
                 <View className="w-full max-w-md self-center space-y-4">
                     <View>
-                        <Text className="text-base text-gray-700">Naam:</Text>
-                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">
-                            {user.fname} {user.infix ? user.infix + ' ' : ''}{user.lname}
-                        </Text>
+                        <Text className="text-base text-gray-700">Voornaam:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.fname}</Text>
+                    </View>
+                    <View>
+                        <Text className="text-base text-gray-700">Tussenvoegsel:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.infix}</Text>
+                    </View>
+                    <View>
+                        <Text className="text-base text-gray-700">Achternaam:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.lname}</Text>
+                    </View>
+                    <View>
+                        <Text className="text-base text-gray-700">Displaynaam:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.display_name}</Text>
                     </View>
                     <View>
                         <Text className="text-base text-gray-700">Geboortedatum:</Text>
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.dateofbirth}</Text>
+                    </View>
+                    <View>
+                        <Text className="text-base text-gray-700">Studentnummer:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.studentnr}</Text>
+                    </View>
+                    <View>
+                        <Text className="text-base text-gray-700">Email:</Text>
+                        <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.email}</Text>
                     </View>
                     <View>
                         <Text className="text-base text-gray-700">Status:</Text>
@@ -89,7 +107,7 @@ export default function UserDetails() {
                 </View>
                 <View className="w-full max-w-md self-center mb-4">
                     <Pressable onPress={() => router.push('http://localhost:8081/gebruikersoverzicht')} className="flex-row items-center">
-                        <Text className="text-hrRed text-base">&larr; Terug</Text>
+                        <Text className="text-hrRed text-base">&larr; Terug naar overzicht</Text>
                     </Pressable>
                 </View>
             </ScrollView>
