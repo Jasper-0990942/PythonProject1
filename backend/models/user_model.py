@@ -22,6 +22,7 @@ class Users:
         SELECT
             user_id AS id,
            email,
+           studentnr,
             fname,
             infix,
             lname,
