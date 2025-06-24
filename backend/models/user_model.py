@@ -17,7 +17,6 @@ class Users:
     def get_all_users(self):
         db = Database()
         cursor, con = db.connect_db()
-
         #Users ophalen
         cursor.execute("""
         SELECT
@@ -31,7 +30,6 @@ class Users:
         FROM users
         """)
         users = [dict(row) for row in cursor.fetchall()]
-
         #Admins ophalen
         cursor.execute("""
             SELECT
@@ -44,64 +42,73 @@ class Users:
             'admin' AS role
             FROM admins""")
         admins = [dict(row) for row in cursor.fetchall()]
-
         con.close()
         return {'users': users, 'admins': admins}
 
 
+    # def get_user_by_id(self, user_id):
+    #     result = self.cursor.execute("SELECT user_id, studentnr, fname, lname, dateofbirth, status FROM users WHERE id = ?", (user_id,)).fetchone()
+    #     return dict(result)
     def get_user_by_id(self, user_id):
-        result = self.cursor.execute("SELECT user_id, studentnr, fname, lname, dateofbirth, status FROM users WHERE id = ?", (user_id,)).fetchone()
-        return dict(result)
-def get_user_by_id(self, user_id):
-    db = Database()
-    cursor, con = db.connect_db()
-    cursor.execute("""
-        SELECT 
-            user_id AS id,
-            email,
-            fname,
-            infix,
-            lname,
-            dateofbirth,
-            status,
-            studentnr,
-            'user' AS role
-        FROM users
-        WHERE user_id = ?
+        db = Database()
+        cursor, con = db.connect_db()
+        cursor.execute("""
+            SELECT 
+                user_id AS id,
+                email,
+                fname,
+                infix,
+                lname,
+                dateofbirth,
+                status,
+                studentnr,
+                'user' AS role
+            FROM users
+            WHERE user_id = ?
+    
+            UNION
+    
+            SELECT 
+                admin_id AS id,
+                email,
+                fname,
+                infix,
+                lname,
+                dateofbirth,
+                status,
+                NULL AS studentnr,
+                'admin' AS role
+            FROM admins
+            WHERE admin_id = ?
+        """, (user_id, user_id))
+        row = cursor.fetchone()
+        con.close()
+        return dict(row) if row else None
 
-        UNION
+    def block_user_by_id(self, role, user_id):
+        try:
+            if role == 'user':
+                self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
+            elif role == 'admin':
+                self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
+            else:
+                return False
 
-        SELECT 
-            admin_id AS id,
-            email,
-            fname,
-            infix,
-            lname,
-            dateofbirth,
-            status,
-            NULL AS studentnr,
-            'admin' AS role
-        FROM admins
-        WHERE admin_id = ?
-    """, (user_id, user_id))
-    row = cursor.fetchone()
-    con.close()
-    return dict(row) if row else None
+            if self.cursor.rowcount == 0:
+                return False
 
-def block_user_by_id(self, role, user_id):
-    try:
-        if role == 'user':
-            self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
-        elif role == 'admin':
-            self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
-        else:
+            self.con.commit()
+            return True
+        except Exception as e:
+            print("Fout bij blokkeren:", e)
             return False
 
-        if self.cursor.rowcount == 0:
-            return False
 
-        self.con.commit()
-        return True
-    except Exception as e:
-        print("Fout bij blokkeren:", e)
-        return False
+
+    def get_user_by_email(self, email):
+        db = Database()
+        cursor, con = db.connect_db()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        con.close()
+        return user
