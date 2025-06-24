@@ -10,7 +10,7 @@ from backend.blueprints.users import users_bp
 from backend.blueprints.sources import sources_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 app.secret_key = 'biem'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
