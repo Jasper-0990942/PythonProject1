@@ -56,6 +56,13 @@ function Login() {
         <Image source={logo} style={styles.logo} resizeMode="contain" />
       </View>
 
+      <View style={styles.registerContainer}>
+  <Pressable onPress={() => router.push('/registration')} style={styles.registerLink}>
+    <Text style={styles.registerText}>Nog geen account? Registreer hier</Text>
+  </Pressable>
+</View>
+
+
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
 
@@ -133,6 +140,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  registerContainer: {
+  marginTop: 20,
+  alignItems: 'center',
+},
+
+registerLink: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+registerText: {
+  color: '#d2214b',
+  fontSize: 16,
+},
+
+
   buttonText: {
     color: '#fff',
     fontSize: 16,
