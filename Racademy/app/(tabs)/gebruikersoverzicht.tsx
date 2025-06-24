@@ -109,6 +109,7 @@ export default function OverzichtUsers() {
                                     }}
                                     className={`py-2 px-3 rounded-md ${roleFilter === role ? 'bg-hrRed/10' : 'hover:bg-gray-100'}`}>
                                     <Text
+                                        className={`${roleFilter === role ? 'text-hrRed font-bold capitalize' : 'capitalize'}`}>
                                         {role}
                                     </Text>
                                 </TouchableOpacity>
