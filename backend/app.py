@@ -5,6 +5,8 @@ import jwt
 import datetime
 from functools import wraps
 import os
+from werkzeug.security import check_password_hash
+
 
 from backend.blueprints.users import users_bp
 from backend.blueprints.sources import sources_bp
@@ -93,8 +95,11 @@ def login():
         })
 
     user = conn.execute(
-        'SELECT * FROM users WHERE display_name = ? AND password = ?',
-        (login_input, password)
+        '''
+        SELECT * FROM users 
+        WHERE (email = ? OR studentnr = ?) AND password = ?
+        ''',
+        (login_input, login_input, password)
     ).fetchone()
 
     conn.close()

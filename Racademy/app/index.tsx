@@ -68,7 +68,7 @@ function Login() {
 
         <TextInput
           style={styles.input}
-          placeholder="Email or username"
+          placeholder="Email of studentnummer"
           value={login}
           onChangeText={setLogin}
           autoCapitalize="none"
@@ -76,7 +76,7 @@ function Login() {
 
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Wachtwoord"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
