@@ -73,11 +73,11 @@ def login():
     conn = get_db_connection()
 
     admin = conn.execute(
-        'SELECT * FROM admins WHERE email = ? AND password = ?',
-        (login_input, password)
+        'SELECT * FROM admins WHERE email = ?',
+        (login_input,)
     ).fetchone()
 
-    if admin:
+    if admin and check_password_hash(admin['password'], password):
         admin_data = dict(admin)
         token = jwt.encode({
             'email': admin_data['email'],
@@ -97,14 +97,14 @@ def login():
     user = conn.execute(
         '''
         SELECT * FROM users 
-        WHERE (email = ? OR studentnr = ?) AND password = ?
+        WHERE (email = ? OR studentnr = ?) 
         ''',
-        (login_input, login_input, password)
+        (login_input, login_input)
     ).fetchone()
 
     conn.close()
 
-    if user:
+    if user and check_password_hash(user['password'], password):
         user_data = dict(user)
         token = jwt.encode({
             'display_name': user_data['display_name'],
