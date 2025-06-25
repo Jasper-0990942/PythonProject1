@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
-import { useRouter } from 'expo-router';
+import {useRouter} from 'expo-router';
 
 export default function Registratiescherm() {
     const [email, setEmail] = useState('');
@@ -32,14 +32,33 @@ export default function Registratiescherm() {
             alert("Studentnummer moet precies 7 cijfers bevatten.");
             return;
         }
+        if (!email.startsWith(studentnr)) {
+            alert("Studentnummer komt niet overeen met het studentnummer in het mailadres.");
+            return;
+        }
         if (error) {
             alert("Fout");
             return;
         }
         try {
+            const emailCheck = await fetch(`${backendUrl}/users/checkmail`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email}),
+            });
+            const emailCheckData = await emailCheck.json();
+            if (emailCheckData.exists) {
+                alert("Er bestaat al een account met dit mailadres.");
+                return;
+            }
+        } catch (error) {
+            alert("Het is niet gelukt om te checken of dit mailadres al een account heeft.");
+            return;
+        }
+        try {
             const response = await fetch(`${backendUrl}/users/register`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     email,
                     fname,
@@ -56,7 +75,7 @@ export default function Registratiescherm() {
             }
 
 
-            alert('Gelukt! Welkom ${fname}!');
+            alert(`Gelukt! Welkom ${fname}!`);
             router.push('/login');
 
         } catch (error) {
@@ -71,7 +90,7 @@ export default function Registratiescherm() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
-            <ScrollView contentContainerStyle={{ padding: 24 }} keyboardShouldPersistTaps="handled">
+            <ScrollView contentContainerStyle={{padding: 24}} keyboardShouldPersistTaps="handled">
                 <View className="items-center">
                     <Text className="text-4xl font-bold text-hrRed my-6">Registreren</Text>
                 </View>
@@ -146,6 +165,11 @@ export default function Registratiescherm() {
 
                     <Pressable onPress={aanmaakRegistratie} className="bg-hrRed py-3 rounded-md items-center mt-6">
                         <Text className="text-white font-semibold">Maak profiel aan</Text>
+                    </Pressable>
+                </View>
+                <View className="w-full max-w-md self-center mb-4">
+                    <Pressable onPress={() => router.push('/login')} className="flex-row items-center">
+                        <Text className="text-hrRed text-base">&larr; Terug naar login</Text>
                     </Pressable>
                 </View>
             </ScrollView>

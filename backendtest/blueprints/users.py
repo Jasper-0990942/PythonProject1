@@ -1,13 +1,11 @@
 from flask import Blueprint, request, jsonify
-from flask_cors import cross_origin
 from models.user_model import Users
-from flask import url_for
+from backendtest.auth_token import token_required
 
 
 users_bp = Blueprint('users_bp', __name__)
 
 @users_bp.post('/register')
-@cross_origin()
 def create_user():
     display_name = request.json["studentnr"]
     studentnr = request.json["studentnr"]
@@ -22,8 +20,16 @@ def create_user():
     new_user = user_model.add_user(display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status)
     return {'successfull': new_user, 'success': True}, 201
 
+@users_bp.post('/checkmail')
+def check_mail():
+    data = request.get_json()
+    email = data.get('email')
+    user_model = Users()
+    user = user_model.get_user_by_email(email)
+    return jsonify({"exists": user is not None})
+
 @users_bp.patch('/<string:role>/<int:user_id>/block')
-@cross_origin()
+@token_required(user_type='admin')
 def block_user(role, user_id):
     user_model = Users()
     success = user_model.block_user_by_id(role, user_id)
@@ -34,14 +40,12 @@ def block_user(role, user_id):
 
 
 @users_bp.get('/apart')
-@cross_origin()
 def get_all_users():
     user_model = Users()
     return jsonify(user_model.get_all_users())
 
 
 @users_bp.get('/<string:role>/<int:user_id>')
-@cross_origin()
 def get_user_by_role_and_id(role, user_id):
     user_model = Users()
     if role == 'user':

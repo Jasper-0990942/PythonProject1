@@ -4,6 +4,7 @@ import {useRouter} from 'expo-router';
 
 type User = {
     id: number;
+    studentnr?: number;
     email: string;
     fname: string;
     infix?: string;
@@ -29,7 +30,6 @@ export default function OverzichtUsers() {
                 const res = await fetch('http://localhost:5000/users/apart');
                 const json = await res.json();
                 const combined = [...json.admins, ...json.users];
-
                 console.log('Gebruikersdata ontvangen', combined);
                 setUsers(combined);
             } catch (error) {
@@ -52,8 +52,9 @@ export default function OverzichtUsers() {
         const matchesName = fullName.includes(nameFilter.toLowerCase());
         const matchesRole = roleFilter === '' || user.role === roleFilter;
         const matchesStudentNummer =
-            studentNummerFilter === '' || user.id.toString().includes(studentNummerFilter);
-
+            studentNummerFilter === '' ||
+            (typeof user.studentnr === 'number' &&
+                user.studentnr.toString().includes(studentNummerFilter));
         return matchesName && matchesRole && matchesStudentNummer;
     });
 
@@ -62,49 +63,66 @@ export default function OverzichtUsers() {
             <View className="items-center mb-6">
                 <Text className="text-3xl font-bold text-hrRed">Gebruikersoverzicht</Text>
             </View>
-            <View className="space-y-3 mb-6">
+            <View className="flex-row flex-wrap gap-2 mb-6">
                 <TextInput
                     placeholder="Filter op naam"
                     value={nameFilter}
                     onChangeText={setNameFilter}
-                    className="border rounded-md p-2 border-gray-300"/>
+                    className="border rounded-md p-2 border-hrRed flex-1 min-w-[48%]"/>
                 <TextInput
                     placeholder="Filter op studentnummer"
                     value={studentNummerFilter}
                     onChangeText={setStudentNummerFilter}
                     keyboardType="numeric"
-                    className="border rounded-md p-2 border-gray-300"/>
+                    className="border rounded-md p-2 border-hrRed flex-1 min-w-[48%]"/>
                 <Pressable
                     onPress={() => setPickerZien(true)}
-                    className="border border-gray-300 p-2 rounded-md"
-                >
-                    <Text>{roleFilter ? roleFilter : 'Filter op rol'}</Text>
+                    className="border border-gray-300 p-2 rounded-md flex-1 min-w-[45%] bg-gray-100">
+                    <Text className={`text-gray-700 ${!roleFilter ? 'text-gray-400' : ''}`}>
+                        {roleFilter ? `Rol: ${roleFilter}` : 'Filter op rol'}
+                    </Text>
                 </Pressable>
+            </View>
+            <View>
                 <Modal visible={pickerZien} transparent animationType="fade">
                     <TouchableOpacity
+                        activeOpacity={1}
                         className="flex-1 justify-center items-center bg-black/50"
-                        onPress={() => setPickerZien(false)}>
-                        <View className="bg-white p-4 rounded-md w-64">
-                            <TouchableOpacity onPress={() => {
-                                setRoleFilter('');
-                                setPickerZien(false);}}>
-                                <Text className="py-2">Alle rollen</Text>
+                        onPressOut={() => setPickerZien(false)}>
+                        <TouchableOpacity activeOpacity={1} className="bg-white p-4 rounded-xl w-64 shadow-lg">
+                            <Text className="text-lg font-semibold mb-2">Selecteer rol</Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setRoleFilter('');
+                                    setPickerZien(false);
+                                }}
+                                className={`py-2 px-3 rounded-md ${roleFilter === '' ? 'bg-hrRed/10' : 'hover:bg-gray-100'}`}>
+                                <Text className={`${roleFilter === '' ? 'text-hrRed font-bold' : ''}`}>Alle
+                                    rollen</Text>
                             </TouchableOpacity>
                             {roles.map((role) => (
-                                <TouchableOpacity key={role} onPress={() => {
-                                    setRoleFilter(role);
-                                    setPickerZien(false);}}>
-                                    <Text className="py-2 capitalize">{role}</Text>
+                                <TouchableOpacity
+                                    key={role}
+                                    onPress={() => {
+                                        setRoleFilter(role);
+                                        setPickerZien(false);
+                                    }}
+                                    className={`py-2 px-3 rounded-md ${roleFilter === role ? 'bg-hrRed/10' : 'hover:bg-gray-100'}`}>
+                                    <Text
+                                        className={`${roleFilter === role ? 'text-hrRed font-bold capitalize' : 'capitalize'}`}>
+                                        {role}
+                                    </Text>
                                 </TouchableOpacity>
                             ))}
-                        </View>
+                        </TouchableOpacity>
                     </TouchableOpacity>
                 </Modal>
             </View>
             <View className="space-y-4">
                 {filteredUsers.map((user) => (
                     <View key={user.id} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
-                        <Text className="text-lg font-semibold text-gray-800">{user.fname} {user.infix ?? ''} {user.lname}</Text>
+                        <Text
+                            className="text-lg font-semibold text-gray-800">{user.fname} {user.infix ?? ''} {user.lname}</Text>
                         <Text className="text-sm text-gray-600">{user.email} ({user.role})</Text>
                         <Pressable
                             onPress={() => router.push(`/users/${user.role}/${user.id}`)}
