@@ -94,10 +94,8 @@ class Users:
                 self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
             else:
                 return False
-
             if self.cursor.rowcount == 0:
                 return False
-
             self.con.commit()
             return True
         except Exception as e:

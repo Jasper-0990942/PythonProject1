@@ -8,5 +8,7 @@ COPY ./ /app/
 RUN pip install -r requirements.txt
 # Open port 5000 in de container zodat we van buiten naar binnen kunnen
 EXPOSE 5000
+
+ENV PYTHONPATH=/app
 # Run the application
-CMD ["python", "app.py"]
+CMD ["python", "backendtest/app.py"]
