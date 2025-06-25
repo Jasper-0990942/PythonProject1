@@ -7,12 +7,12 @@ class Users:
         database = Database()
         self.cursor, self.con = database.connect_db()
 
-    def add_user(self, display_name, studentnr, fname, lname, password, dateofbirth, status):
-        result = self.cursor.execute(
-            "INSERT INTO users (display_name, studentnr, fname, lname, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (display_name, studentnr, fname, lname, generate_password_hash(password), dateofbirth, status))
+    def add_user(self, display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status):
+        self.cursor.execute(
+            "INSERT INTO users (display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (display_name, studentnr, fname, infix, lname, email, generate_password_hash(password), dateofbirth, status))
         self.con.commit()
-        return dict(result)
+        return True
 
     def get_all_users(self):
         db = Database()
@@ -22,7 +22,7 @@ class Users:
         cursor.execute("""
         SELECT
             user_id AS id,
-            email,
+           email,
             fname,
             infix,
             lname,
@@ -87,3 +87,21 @@ def get_user_by_id(self, user_id):
     row = cursor.fetchone()
     con.close()
     return dict(row) if row else None
+
+def block_user_by_id(self, role, user_id):
+    try:
+        if role == 'user':
+            self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
+        elif role == 'admin':
+            self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
+        else:
+            return False
+
+        if self.cursor.rowcount == 0:
+            return False
+
+        self.con.commit()
+        return True
+    except Exception as e:
+        print("Fout bij blokkeren:", e)
+        return False

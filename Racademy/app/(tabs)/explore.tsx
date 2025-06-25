@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import Home from "@/features/Home/Home";
 import AddSource from "@/features/createSource/components/AddSource";
+import Source from "@/features/source/Source";
 
 export default function Explore() {
   return (

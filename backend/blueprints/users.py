@@ -9,18 +9,28 @@ users_bp = Blueprint('users_bp', __name__)
 @users_bp.post('/register')
 @cross_origin()
 def create_user():
-    display_name = 'jannie'
+    display_name = request.json["studentnr"]
     studentnr = request.json["studentnr"]
     fname = request.json["fname"]
+    infix = request.json["infix"]
     lname = request.json["lname"]
+    email = request.json["email"]
     password = request.json["password"]
     dateofbirth = request.json["dateofbirth"]
-    email = request.json["email"]
-    status = 'active'
+    status = 'actief'
     user_model = Users()
-    new_user = user_model.add_user(display_name, studentnr, fname, lname, password, dateofbirth, status)
+    new_user = user_model.add_user(display_name, studentnr, fname, infix, lname, email, password, dateofbirth, status)
     return {'successfull': new_user, 'success': True}, 201
 
+@users_bp.patch('/<string:role>/<int:user_id>/block')
+@cross_origin()
+def block_user(role, user_id):
+    user_model = Users()
+    success = user_model.block_user_by_id(role, user_id)
+    if success:
+        return {'message': 'Gebruiker succesvol geblokkeerd.', 'success': True}, 200
+    else:
+        return {'error': 'Gebruiker niet gevonden of fout bij blokkeren.'}, 404
 
 
 @users_bp.get('/apart')

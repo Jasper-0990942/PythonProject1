@@ -6,12 +6,18 @@ import datetime
 from functools import wraps
 import os
 
+from backend.blueprints.users import users_bp
+from backend.blueprints.sources import sources_bp
+
 app = Flask(__name__)
 CORS(app)
 app.secret_key = 'biem'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE = os.path.join(BASE_DIR, 'database', 'database.db')
+
+app.register_blueprint(users_bp, url_prefix="/users")
+app.register_blueprint(sources_bp, url_prefix="/sources")
 
 
 def token_required(user_type=None):
