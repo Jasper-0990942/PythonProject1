@@ -30,23 +30,6 @@ export default function OverzichtUsers() {
 
 
     useEffect(() => {
-        async function fetchCurrentUser() {
-            try {
-                const token = await AsyncStorage.getItem('authToken');
-                const res = await fetch(`${apiBaseUrl}/users/current_user_role`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`}});
-                const json = await res.json();
-                if (json.success && json.type === 'admin') {
-                    setCurrentUserRole('admin');
-                } else {
-                    setCurrentUserRole('user');}
-            } catch (error) {
-                console.error('Kon huidige gebruiker niet ophalen:', error);}}
-        fetchCurrentUser();
-    }, []);
-
-    useEffect(() => {
         async function fetchUsers() {
             try {
                 console.log('Fetching users apart');
@@ -87,6 +70,13 @@ export default function OverzichtUsers() {
         <ScrollView className="flex-1 bg-white px-6 pt-6">
             <View className="items-center mb-6">
                 <Text className="text-3xl font-bold text-hrRed">Gebruikersoverzicht</Text>
+            </View>
+            <View className="mb-4">
+                <Pressable
+                    onPress={() => router.push('/newadmin')}
+                    className="bg-hrRed px-4 py-2 rounded-md mt-4 items-center">
+                    <Text className="text-white font-semibold">Nieuwe admin aanmaken</Text>
+                </Pressable>
             </View>
             <View className="flex-row flex-wrap gap-2 mb-6">
                 <TextInput
@@ -155,15 +145,6 @@ export default function OverzichtUsers() {
                             <Text className="text-white font-medium">Bekijk details</Text>
                         </Pressable>
                     </View>))}
-            </View>
-            <View>
-                {currentUserRole === 'admin' && (
-                    <Pressable
-                        onPress={() => router.push('/admin/nieuwe-admin')}
-                        className="bg-hrRed px-4 py-2 rounded-md mt-4 items-center">
-                        <Text className="text-white font-semibold">Nieuwe admin aanmaken</Text>
-                    </Pressable>
-                )}
             </View>
         </ScrollView>
     );}
