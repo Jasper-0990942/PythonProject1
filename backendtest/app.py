@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
 import jwt
-import datetime
+from datetime import datetime, timedelta, timezone
 import os
 from auth_token import token_required
 
@@ -10,7 +10,8 @@ from blueprints.users import users_bp
 from blueprints.sources import (sources_bp)
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app)
+
 app.secret_key = 'biem'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -52,7 +53,7 @@ def login():
         token = jwt.encode({
             'email': admin_data['email'],
             'type': 'admin',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
 
         admin_data.pop('password', None)
@@ -76,7 +77,7 @@ def login():
         token = jwt.encode({
             'display_name': user_data['display_name'],
             'type': 'user',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
 
         user_data.pop('password', None)
