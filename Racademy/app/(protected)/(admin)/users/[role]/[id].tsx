@@ -5,6 +5,9 @@ import {useLocalSearchParams} from 'expo-router';
 import {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Pressable} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 export default function UserDetails() {
     const {id, role} = useLocalSearchParams();
@@ -26,7 +29,7 @@ export default function UserDetails() {
     useEffect(() => {
         async function fetchUser() {
             try {
-                const res = await fetch(`http://localhost:5000/users/${role}/${id}`);
+                const res = await fetch(`${apiBaseUrl}/users/${role}/${id}`);
                 const data = await res.json();
                 setUser(data.user);
             } catch (error) {
@@ -40,11 +43,16 @@ export default function UserDetails() {
     const blockUser = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken');
-            const res = await fetch(`http://localhost:5000/users/${role}/${id}/block`, {
+            console.log('API base URL:', apiBaseUrl);
+            console.log('Fetch URL:', `${apiBaseUrl}/users/${role}/${id}/block`);
+            console.log('Gebruikersrol uit URL:', role);
+            console.log('Token:', token);
+
+            const res = await fetch(`${apiBaseUrl}/users/${role}/${id}/block`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`
                 },});
             const data = await res.json();
             if (res.ok && data.success) {
@@ -127,7 +135,7 @@ export default function UserDetails() {
                         </Pressable>
                     </View>)}
                 <View className="w-full max-w-md self-center mb-4">
-                    <Pressable onPress={() => router.push('http://localhost:8081/gebruikersoverzicht')}
+                    <Pressable onPress={() => router.push('/gebruikersoverzicht')}
                                className="flex-row items-center">
                         <Text className="text-hrRed text-base">&larr; Terug naar overzicht</Text>
                     </Pressable>

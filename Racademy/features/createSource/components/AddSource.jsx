@@ -4,7 +4,9 @@ import Input from "@/features/createSource/components/Input";
 import ImageFileIcon from "@/assets/images/image-file-icon.png";
 import ImagePicker from "@/features/createSource/components/ImagePicker";
 import { useRouter } from 'expo-router'
-import Ionicons from "@expo/vector-icons/Ionicons";
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 
 function AddSource () {
@@ -22,7 +24,7 @@ function AddSource () {
 
     function handleSubmit() {
 
-        fetch(`${backendUrl}/sources/`, {
+        fetch(`${apiBaseUrl}/sources/`, {
             method: 'UPDATE',
             headers: {
                 "Content-Type": "application/json"

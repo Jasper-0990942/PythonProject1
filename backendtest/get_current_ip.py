@@ -23,5 +23,5 @@ def save_env_variable(ip_address: str, env_file: Path):
 if __name__ == "__main__":
     ip_addr = find_local_ip_address()
     base_path = Path(__file__).parent.resolve()
-    env_path = base_path / "src" / "frontend" / ".env"
+    env_path = base_path / "Racademy" / ".env"
     save_env_variable(ip_addr, env_path)

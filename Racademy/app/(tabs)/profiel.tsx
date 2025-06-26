@@ -5,6 +5,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 type ProfileType = {
   email?: string;
@@ -52,7 +55,7 @@ export default function ProfileScreen() {
 
         setIsAdmin(userData.type === 'admin');
 
-        const resp = await fetch('http://127.0.0.1:5000/profile', {
+        const resp = await fetch(`${apiBaseUrl}/profile`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${tokenValue}` },
         });
@@ -117,7 +120,7 @@ export default function ProfileScreen() {
 
     try {
       console.log('Sending token:', tokenValue);
-      const resp = await fetch('http://127.0.0.1:5000/update_profile', {
+      const resp = await fetch(`${apiBaseUrl}/update_profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

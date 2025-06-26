@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, Pressable, ScrollView, TextInput, Modal, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
+
 
 type User = {
     id: number;
@@ -27,7 +31,9 @@ export default function OverzichtUsers() {
         async function fetchUsers() {
             try {
                 console.log('Fetching users apart');
-                const res = await fetch('http://localhost:5000/users/apart');
+                console.log('API URL:', apiBaseUrl);
+
+                const res = await fetch(`${apiBaseUrl}/users/apart`);
                 const json = await res.json();
                 const combined = [...json.admins, ...json.users];
                 console.log('Gebruikersdata ontvangen', combined);
