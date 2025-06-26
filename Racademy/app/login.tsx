@@ -3,8 +3,7 @@ import { StyleSheet, Text, TextInput, View, Pressable, Image } from 'react-nativ
 import { useRouter } from 'expo-router';
 import asyncstorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-
-import logo from '../assets/images/hogeschool-rotterdam.png';
+import logo from "../assets/images/hogeschool-rotterdam.png";
 
 function Login() {
   const [login, setLogin] = useState('');
