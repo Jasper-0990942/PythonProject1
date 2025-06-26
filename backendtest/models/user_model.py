@@ -90,8 +90,6 @@ class Users:
         try:
             if role == 'user':
                 self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
-            elif role == 'admin':
-                self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
             else:
                 return False
             if self.cursor.rowcount == 0:

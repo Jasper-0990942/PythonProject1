@@ -28,15 +28,17 @@ def check_mail():
     user = user_model.get_user_by_email(email)
     return jsonify({"exists": user is not None})
 
-@users_bp.patch('/<string:role>/<int:user_id>/block')
+@users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH'])
 @token_required(user_type='admin')
 def block_user(role, user_id):
     user_model = Users()
+    if role != 'user':
+        return jsonify({'success': False, 'message': 'Ongeldige rol'}), 400
     success = user_model.block_user_by_id(role, user_id)
     if success:
-        return {'message': 'Gebruiker succesvol geblokkeerd.', 'success': True}, 200
+        return jsonify({'success': True, 'message': 'Gebruiker geblokkeerd'}), 200
     else:
-        return {'error': 'Gebruiker niet gevonden of fout bij blokkeren.'}, 404
+        return jsonify({'success': False, 'message': 'Kon gebruiker niet blokkeren'}), 404
 
 
 @users_bp.get('/apart')

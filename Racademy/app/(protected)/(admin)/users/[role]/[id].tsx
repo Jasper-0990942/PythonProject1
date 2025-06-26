@@ -4,12 +4,23 @@ import {useRouter} from "expo-router";
 import {useLocalSearchParams} from 'expo-router';
 import {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Pressable} from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function UserDetails() {
-    const {id, role, currentUserRole} = useLocalSearchParams();
+    const {id, role} = useLocalSearchParams();
     const [user, setUser] = useState<any>(null);
+    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        const haalGebruikerRolOp = async () => {
+            const role = await AsyncStorage.getItem('userType');
+            if (role) {
+                setCurrentUserRole(role);
+            }};
+        haalGebruikerRolOp();
+    }, []);
 
 
     useEffect(() => {
@@ -22,28 +33,28 @@ export default function UserDetails() {
                 console.error('Fout bij ophalen gebruiker:', error);
             } finally {
                 setLoading(false);
-            }
-        }
-
+            }}
         if (id && role) fetchUser();
     }, [id, role]);
 
     const blockUser = async () => {
         try {
+            const token = await AsyncStorage.getItem('authToken');
             const res = await fetch(`http://localhost:5000/users/${role}/${id}/block`, {
                 method: 'PATCH',
-                headers: {'content-type': 'application/json',
-                        'X-User-Role': currentUserRole }});
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },});
             const data = await res.json();
-            if (!res.ok && data.success) {
+            if (res.ok && data.success) {
                 alert("Gebruiker is nu geblokkeerd.");
                 setUser({...user, status: 'geblokkeerd'});
             } else {
-                alert("Gebruiker blokkeren in niet gelukt.");
-            }
+                alert("Gebruiker blokkeren is niet gelukt.");}
         } catch (error) {
             console.error("Fout bij blokkeren van gebruiker:", error);
-            alert("Gebruiker blokkeren in niet gelukt.");
+            alert("Gebruiker blokkeren is niet gelukt.");
         }};
 
     if (loading) {
