@@ -16,12 +16,12 @@ export default function Registratiescherm() {
     const [error, setError] = useState('');
     const [infix, setInfix] = useState('');
 
-    const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
     const router = useRouter();
 
     const aanmaakRegistratie = async () => {
         console.log("Knop is ingedrukt");
-        console.log("Backend URL:", backendUrl);
+        console.log("apiBaseUrl:", apiBaseUrl);
+        console.log("Check URL:", `${apiBaseUrl}/users/register`);
         if (!studentnr || !dateofbirth || !password || !confirmPassword || !fname || !lname) {
             alert("Vul alle velden in.");
             console.log("test")
@@ -70,22 +70,16 @@ export default function Registratiescherm() {
                     studentnr,
                     dateofbirth,
                     password,
-                }),
-            });
-
+                }),});
             if (!response.ok) {
                 throw new Error('Registratie mislukt');
             }
-
-
             alert(`Gelukt! Welkom ${fname}!`);
             router.push('/');
-
         } catch (error) {
             console.error("FOUTTTT", error);
             alert('Er ging iets mis bij het registreren.');
-        }
-    };
+        }};
 
     return (
         <KeyboardAvoidingView
