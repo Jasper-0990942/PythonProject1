@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, Pressable, ScrollView, TextInput, Modal, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
 import Constants from 'expo-constants';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
