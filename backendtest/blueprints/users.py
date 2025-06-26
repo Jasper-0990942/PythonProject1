@@ -5,16 +5,14 @@ from backendtest.auth_token import token_required
 
 users_bp = Blueprint('users_bp', __name__)
 
-@users_bp.route('/current_user_role', methods=['GET', 'OPTIONS'])
+@users_bp.route('/current_user_role', methods=['GET'])
 @token_required()
 def current_user_role():
-    user = request.user
-    if request.method == 'OPTIONS':
-        return '', 200
+    user_model = Users()
+    user = user_model.request.user
     return jsonify({
         'success': True,
         'type': user['type'] }), 200
-
 
 @users_bp.post('/register')
 def create_user():
@@ -39,12 +37,10 @@ def check_mail():
     user = user_model.get_user_by_email(email)
     return jsonify({"exists": user is not None})
 
-@users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH', 'OPTIONS'])
+@users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH'])
 @token_required(user_type='admin')
 def block_user(role, user_id):
     user_model = Users()
-    if request.method == 'OPTIONS':
-        return '', 200
     if role != 'user':
         return jsonify({'success': False, 'message': 'Ongeldige rol'}), 400
     success = user_model.block_user_by_id(role, user_id)
@@ -87,11 +83,9 @@ def get_user_by_role_and_id(role, user_id):
 
     return {'error': 'User not found'}, 404
 
-@users_bp.route('/add_admin', methods=['POST', 'OPTIONS'])
+@users_bp.route('/add_admin', methods=['POST'])
 @token_required(user_type='admin')
 def add_admin():
-    if request.method == 'OPTIONS':
-        return '', 200
     user_model = Users()
     data = request.get_json()
     email = data.get('email')

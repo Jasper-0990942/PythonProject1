@@ -8,8 +8,6 @@ def token_required(user_type=None):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if request.method == 'OPTIONS':
-                return f(*args, **kwargs)
             token = None
             if 'Authorization' in request.headers:
                 parts = request.headers['Authorization'].split(" ")
