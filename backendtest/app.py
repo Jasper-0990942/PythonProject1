@@ -92,9 +92,11 @@ def login():
     return jsonify({"success": False, "message": "Incorrect username or password"}), 401
 
 
-@app.route('/profile', methods=['GET'])
+@app.route('/profile', methods=['GET', 'OPTIONS'])
 @token_required()
 def profile():
+    if request.method == 'OPTIONS':
+        return '', 200
     user = request.user
     conn = get_db_connection()
 
@@ -123,9 +125,11 @@ def profile():
         return jsonify({'success': False, 'message': 'Invalid user type'}), 400
 
 
-@app.route('/delete_resource', methods=['POST'])
+@app.route('/delete_resource', methods=['POST', 'OPTIONS'])
 @token_required()
 def delete_resource():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     resource_id = data.get('resource_id')
 
@@ -139,9 +143,11 @@ def delete_resource():
     return jsonify({"success": True, "message": "Resource deleted"}), 200
 
 
-@app.route('/update_resource', methods=['POST'])
+@app.route('/update_resource', methods=['POST', 'OPTIONS'])
 @token_required()
 def update_resource():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     resource_id = data.get('resource_id')
     new_title = data.get('title')
@@ -160,9 +166,11 @@ def update_resource():
         return jsonify({"success": False, "message": f"Error updating resource: {str(e)}"}), 500
 
 
-@app.route('/update_profile', methods=['POST'])
+@app.route('/update_profile', methods=['POST', 'OPTIONS'])
 @token_required()
 def update_profile():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     user = request.user  # Decoded JWT
 
@@ -217,6 +225,8 @@ def update_profile():
 @app.route('/get_resources', methods=['POST'])
 @token_required()
 def get_resources():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.get_json()
     email = data.get('email')
 

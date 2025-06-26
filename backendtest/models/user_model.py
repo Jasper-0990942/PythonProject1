@@ -109,3 +109,21 @@ class Users:
         user = cursor.fetchone()
         con.close()
         return user
+
+    def create_admin(email, password, fname, infix, lname, dateofbirth, status):
+        db = Database()
+        cursor, con = db.connect_db()
+        try:
+            con.execute(
+                """
+                INSERT INTO admins (email, password, fname, infix, lname, dateofbirth, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (email, password, fname, infix, lname, dateofbirth, status))
+            con.commit()
+            return True
+        except Exception as e:
+            print("Fout bij toevoegen admin:", e)
+            return False
+        finally:
+            con.close()

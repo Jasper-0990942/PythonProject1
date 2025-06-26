@@ -5,6 +5,17 @@ from backendtest.auth_token import token_required
 
 users_bp = Blueprint('users_bp', __name__)
 
+@users_bp.route('/current_user_role', methods=['GET', 'OPTIONS'])
+@token_required()
+def current_user_role():
+    user = request.user
+    if request.method == 'OPTIONS':
+        return '', 200
+    return jsonify({
+        'success': True,
+        'type': user['type'] }), 200
+
+
 @users_bp.post('/register')
 def create_user():
     display_name = request.json["studentnr"]
@@ -28,10 +39,12 @@ def check_mail():
     user = user_model.get_user_by_email(email)
     return jsonify({"exists": user is not None})
 
-@users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH'])
+@users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH', 'OPTIONS'])
 @token_required(user_type='admin')
 def block_user(role, user_id):
     user_model = Users()
+    if request.method == 'OPTIONS':
+        return '', 200
     if role != 'user':
         return jsonify({'success': False, 'message': 'Ongeldige rol'}), 400
     success = user_model.block_user_by_id(role, user_id)
@@ -74,3 +87,26 @@ def get_user_by_role_and_id(role, user_id):
 
     return {'error': 'User not found'}, 404
 
+@users_bp.route('/add_admin', methods=['POST', 'OPTIONS'])
+@token_required(user_type='admin')
+def add_admin():
+    if request.method == 'OPTIONS':
+        return '', 200
+    user_model = Users()
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    fname = data.get('fname')
+    infix = data.get('infix')
+    lname = data.get('lname')
+    dateofbirth = data.get('dateofbirth')
+    status = data.get('status')
+
+    if not all([email, password, fname, lname, dateofbirth, status]):
+        return jsonify({'success': False, 'message': 'Vul verplichte velden in'}), 400
+
+    success = user_model.create_admin(email, password, fname, infix, lname, dateofbirth, status)
+    if success:
+        return jsonify({'success': True, 'message': 'Admin succesvol aangemaakt'}), 201
+    else:
+        return jsonify({'success': False, 'message': 'Fout bij het aanmaken'}), 500

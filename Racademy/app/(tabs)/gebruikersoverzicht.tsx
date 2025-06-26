@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, Pressable, ScrollView, TextInput, Modal, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
 import Constants from 'expo-constants';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
-
 
 type User = {
     id: number;
@@ -21,11 +21,30 @@ export default function OverzichtUsers() {
     const router = useRouter();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUserRole, setCurrentUserRole] = useState<'admin' | 'user' | null>(null);
     const [roleFilter, setRoleFilter] = useState<string>('');
     const [pickerZien, setPickerZien] = useState(false);
     const roles = ['user', 'admin'];
     const [nameFilter, setNameFilter] = useState<string>('');
     const [studentNummerFilter, setStudentNummerFilter] = useState<string>('');
+
+
+    useEffect(() => {
+        async function fetchCurrentUser() {
+            try {
+                const token = await AsyncStorage.getItem('authToken');
+                const res = await fetch(`${apiBaseUrl}/users/current_user_role`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`}});
+                const json = await res.json();
+                if (json.success && json.type === 'admin') {
+                    setCurrentUserRole('admin');
+                } else {
+                    setCurrentUserRole('user');}
+            } catch (error) {
+                console.error('Kon huidige gebruiker niet ophalen:', error);}}
+        fetchCurrentUser();
+    }, []);
 
     useEffect(() => {
         async function fetchUsers() {
@@ -136,6 +155,15 @@ export default function OverzichtUsers() {
                             <Text className="text-white font-medium">Bekijk details</Text>
                         </Pressable>
                     </View>))}
+            </View>
+            <View>
+                {currentUserRole === 'admin' && (
+                    <Pressable
+                        onPress={() => router.push('/admin/nieuwe-admin')}
+                        className="bg-hrRed px-4 py-2 rounded-md mt-4 items-center">
+                        <Text className="text-white font-semibold">Nieuwe admin aanmaken</Text>
+                    </Pressable>
+                )}
             </View>
         </ScrollView>
     );}
