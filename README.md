@@ -70,6 +70,7 @@ Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web t
 - (Markov, 2024)
 - (UseContext – React, z.d.)
 - (Code With Nomi, 2023)
+- (1B2, 2025)
 
 # Bronnenlijst
 - Using a ScrollView · React Native. (2025, 14 april). https://reactnative.dev/docs/using-a-scrollview
@@ -84,3 +85,4 @@ Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web t
 - Markov, S. (2024, 18 november). Fortify your Full-Stack React & React Native App: JWT Authentication and Token Rotation. Medium. https://medium.com/@markovsve/fortify-your-full-stack-react-react-native-app-jwt-authentication-and-token-rotation-ad8c919a412f
 - UseContext – React. (z.d.). https://react.dev/reference/react/useContext
 - Code With Nomi. (2023, 13 september). 🔴 Login & SignUp UI in React Native Reanimated | React Native Projects | Beginners Tutorial [Video]. YouTube. https://www.youtube.com/watch?v=M8u_w6_o584
+- Hulp van groepje 1B2 (Jorik, Tobias en Roan) met het maken van get_current_ip.py
