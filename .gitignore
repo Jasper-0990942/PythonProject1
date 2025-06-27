@@ -12,4 +12,5 @@ ios
 *.pyc
 backendtest/database/database.db
 
+Racademy/.env
 .env

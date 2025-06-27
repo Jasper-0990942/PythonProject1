@@ -40,7 +40,7 @@ function AddSource() {
             const data = await response.json();
 
             if (data.success) {
-                router.push('/explore');
+                router.push('/bronnenoverzicht');
             } else {
                 console.error('Fout bij opslaan:', data);
             }
