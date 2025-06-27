@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 
 const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
@@ -42,32 +43,38 @@ export default function BronnenOverzichtScreen() {
   const [selectedBron, setSelectedBron] = useState<Bron | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
+  const fetchData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) return;
+
+      const bronnenResponse = await fetch(`${apiBaseUrl}/bronnen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const bronnenJson = await bronnenResponse.json();
+
+      const favoritesResponse = await fetch(`${apiBaseUrl}/favorites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const favoritesJson = await favoritesResponse.json();
+
+      if (bronnenJson.success) setBronnen(bronnenJson.bronnen);
+      if (favoritesJson.success) setFavorites(favoritesJson.favorites);
+    } catch (e) {
+      alert('Netwerkfout bij ophalen gegevens');
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        if (!token) return;
-
-        const bronnenResponse = await fetch(`${apiBaseUrl}/bronnen`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const bronnenJson = await bronnenResponse.json();
-
-        const favoritesResponse = await fetch(`${apiBaseUrl}/favorites`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const favoritesJson = await favoritesResponse.json();
-
-        if (bronnenJson.success) setBronnen(bronnenJson.bronnen);
-        if (favoritesJson.success) setFavorites(favoritesJson.favorites);
-      } catch (e) {
-        alert('Netwerkfout bij ophalen gegevens');
-      }
-      setLoading(false);
-    };
-
     fetchData();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const toggleFavorite = async (source_id: number) => {
     const token = await AsyncStorage.getItem('authToken');
@@ -199,7 +206,6 @@ export default function BronnenOverzichtScreen() {
 
               <Text style={styles.modalDescription}>{selectedBron?.description}</Text>
 
-              {/* Removed tag display */}
 
               {selectedBron?.link ? (
                 <Text
@@ -227,96 +233,80 @@ export default function BronnenOverzichtScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fdf3e8',
-    padding: 20,
-  },
-  card: {
+    padding: 16,
     backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 8,
-    color: '#03193c',
-  },
-  description: {
-    fontSize: 16,
-    color: '#444',
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 40,
   },
   addButton: {
     backgroundColor: '#d2214b',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    marginBottom: 16,
-    alignSelf: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    alignItems: 'center',
   },
   addButtonText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   searchInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 16,
-    marginBottom: 16,
     borderColor: '#ccc',
     borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  card: {
+    backgroundColor: '#f8f8f8',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    flexShrink: 1,
+  },
+  description: {
+    color: '#555',
+    marginTop: 4,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#999',
   },
   modalContainer: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     backgroundColor: '#fff',
   },
   modalTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#03193c',
+    marginBottom: 12,
   },
   modalImage: {
     width: '100%',
     height: 200,
-    marginBottom: 10,
+    marginBottom: 16,
   },
   modalDescription: {
     fontSize: 16,
-    marginBottom: 10,
-    color: '#444',
+    color: '#333',
+    marginBottom: 16,
   },
   modalLink: {
-    color: 'blue',
-    textDecorationLine: 'underline',
+    color: '#1e90ff',
+    fontSize: 16,
     marginBottom: 20,
   },
   closeButton: {
     backgroundColor: '#d2214b',
     padding: 12,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
   },
   closeButtonText: {
-    color: 'white',
-    fontWeight: '700',
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
