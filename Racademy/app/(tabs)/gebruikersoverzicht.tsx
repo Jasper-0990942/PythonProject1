@@ -134,8 +134,8 @@ export default function OverzichtUsers() {
             </View>
             <View className="space-y-4">
                 {filteredUsers.map((user) => (
-                    <View key={user.id} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
-                        <Text
+                    <View key={`${user.role}-${user.id}`} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
+                    <Text
                             className="text-lg font-semibold text-gray-800">{user.fname} {user.infix ?? ''} {user.lname}</Text>
                         <Text className="text-sm text-gray-600">{user.email} ({user.role})</Text>
                         <Pressable
