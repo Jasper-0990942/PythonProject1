@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { useRouter} from "expo-router";
@@ -16,12 +16,16 @@ type Bron = {
   ISBN: string;
   img: string;
   date_created: string;
+  tag: string;
 };
 
 export default function BronnenOverzichtScreen() {
   const [bronnen, setBronnen] = useState<Bron[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+
+
 
   useEffect(() => {
     const fetchBronnen = async () => {
@@ -52,14 +56,26 @@ export default function BronnenOverzichtScreen() {
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#d2214b" />;
 
+  const filteredBronnen = bronnen.filter((bron) =>
+  bron.title.toLowerCase().includes(searchText.toLowerCase()) ||
+  bron.description.toLowerCase().includes(searchText.toLowerCase())
+);
+
   return (
     <View style={styles.container}>
             <Pressable style={styles.addButton} onPress={() => router.push('/explore')}>
         <Text style={styles.addButtonText}>Bronnen Toevoegen</Text>
       </Pressable>
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Zoek op titel of beschrijving..."
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+
       <FlatList
-        data={bronnen}
+        data={filteredBronnen}
         keyExtractor={(item) => item.source_id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -122,5 +138,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '700',
     fontSize: 18,
+  },
+    searchInput: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 16,
+    borderColor: '#ccc',
+    borderWidth: 1,
   },
 });

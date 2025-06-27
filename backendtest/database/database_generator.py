@@ -18,10 +18,12 @@ class WP4DatabaseGenerator:
         self.create_table_reviews()
         self.create_table_tags()
         self.create_table_source_tags()
+        self.create_table_favorites()
 
         if self.create_initial_data:
             self.insert_admin()
             self.insert_user()
+            self.insert_favorites()
 
     def create_table_users(self):
         create_statement = """
@@ -119,6 +121,20 @@ class WP4DatabaseGenerator:
                """
         self.__execute_transaction_statement(create_statement)
         print("✅ source_tags table created")
+
+        def create_table_favorites(self):
+            create_statement = """
+                CREATE TABLE IF NOT EXISTS favorites (
+                    favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    source_id INTEGER NOT NULL,
+                    UNIQUE(user_id, source_id),
+                    FOREIGN KEY (user_id) REFERENCES users (user_id),
+                    FOREIGN KEY (source_id) REFERENCES sources (source_id)
+                );
+            """
+            self.__execute_transaction_statement(create_statement)
+            print("✅ favorites table created")
 
     def insert_admin(self):
         admins = [
