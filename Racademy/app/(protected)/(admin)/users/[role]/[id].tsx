@@ -60,6 +60,26 @@ export default function UserDetails() {
             alert("Gebruiker blokkeren is niet gelukt.");
         }};
 
+    const unblockUser = async () => {
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            const res = await fetch(`${apiBaseUrl}/users/${role}/${id}/unblock`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`},
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                alert("Gebruiker is gedeblokkeerd.");
+                setUser({...user, status: 'actief'});
+            } else {
+                alert("Deblokkeren is niet gelukt.");}
+        } catch (error) {
+            console.error("Fout bij deblokkeren van gebruiker:", error);
+            alert("Deblokkeren is niet gelukt.");
+        }};
+
     if (loading) {
         return (
             <View className="flex-1 items-center justify-center bg-white">
@@ -123,11 +143,16 @@ export default function UserDetails() {
                         <Text className="border border-hrRed rounded-md p-2 bg-gray-50">{user.role}</Text>
                     </View>
                 </View>
-                {currentUserRole == 'admin' && (
-                    <View className="w-full max-w-md self-center mt-6">
-                        <Pressable onPress={blockUser} className="bg-hrRed p-3 rounded-xl">
-                            <Text className="text-white text-center font-semibold">Blokkeer Gebruiker</Text>
-                        </Pressable>
+                {currentUserRole === 'admin' && user.role !== 'admin' && (
+                    <View className="w-full max-w-md self-center mt-6 space-y-4">
+                        {user.status === 'actief' && (
+                            <Pressable onPress={blockUser} className="bg-hrRed p-3 rounded-xl">
+                                <Text className="text-white text-center font-semibold">Blokkeer gebruiker</Text>
+                            </Pressable>)}
+                        {user.status === 'geblokkeerd' && (
+                            <Pressable onPress={unblockUser} className="bg-green-600 p-3 rounded-xl">
+                                <Text className="text-white text-center font-semibold">Deblokkeer gebruiker</Text>
+                            </Pressable>)}
                     </View>)}
                 <View className="w-full max-w-md self-center mb-4">
                     <Pressable onPress={() => router.push('/gebruikersoverzicht')}
@@ -137,5 +162,4 @@ export default function UserDetails() {
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
-    );
-}
+    );}

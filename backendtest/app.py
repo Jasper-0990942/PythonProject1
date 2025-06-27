@@ -85,6 +85,9 @@ def login():
     conn.close()
 
     if user:
+        if user['status'] == 'geblokkeerd':
+            return jsonify({'success': False, 'message': 'Dit account is geblokkeerd en je kan hiermee dus niet inloggen.'}), 403
+
         stored_password = user['password']
         password_matches = (
             check_password_hash(stored_password, password) or

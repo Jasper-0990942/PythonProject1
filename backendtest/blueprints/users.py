@@ -34,8 +34,9 @@ def check_mail():
     data = request.get_json()
     email = data.get('email')
     user_model = Users()
-    user = user_model.get_user_by_email(email)
-    return jsonify({"exists": user is not None})
+    user_exists = user_model.get_user_by_email(email) is not None
+    admin_exists = user_model.get_admin_by_email(email) is not None
+    return jsonify({"exists": user_exists or admin_exists})
 
 @users_bp.route('/<role>/<int:user_id>/block', methods=['PATCH'])
 @token_required(user_type='admin')
@@ -49,6 +50,17 @@ def block_user(role, user_id):
     else:
         return jsonify({'success': False, 'message': 'Kon gebruiker niet blokkeren'}), 404
 
+@users_bp.route('/<role>/<int:user_id>/unblock', methods=['PATCH'])
+@token_required(user_type='admin')
+def unblock_user(role, user_id):
+    user_model = Users()
+    if role != 'user':
+        return jsonify({'success': False, 'message': 'Ongeldige rol'}), 400
+    success = user_model.unblock_user_by_id(role, user_id)
+    if success:
+        return jsonify({'success': True, 'message': 'Gebruiker gedeblokkeerd'}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Kon gebruiker niet deblokkeren'}), 404
 
 @users_bp.get('/apart')
 def get_all_users():

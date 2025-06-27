@@ -120,7 +120,7 @@ export default function NieuweAdminAanmaken() {
                     <Pressable onPress={maakAdmin} className="bg-hrRed py-3 rounded-md items-center mt-6">
                         <Text className="text-white font-semibold">Admin aanmaken</Text>
                     </Pressable>
-                    <Pressable onPress={() => router.back()} className="mt-4">
+                    <Pressable onPress={() => router.push('/gebruikersoverzicht')} className="mt-4">
                         <Text className="text-hrRed">&larr; Terug</Text>
                     </Pressable>
                 </View>
