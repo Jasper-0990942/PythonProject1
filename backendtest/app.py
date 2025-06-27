@@ -5,7 +5,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 import os
 from auth_token import token_required
-
+import
 from blueprints.users import users_bp
 from blueprints.sources import (sources_bp)
 
@@ -43,16 +43,16 @@ def login():
     conn = get_db_connection()
 
     admin = conn.execute(
-        'SELECT * FROM admins WHERE email = ? AND password = ?',
-        (login_input, password)
+        'SELECT * FROM admins WHERE email = ?',
+        (login_input,)
     ).fetchone()
 
-    if admin:
+    if admin and check_password_hash(admin['password'], password):
         admin_data = dict(admin)
         token = jwt.encode({
             'email': admin_data['email'],
             'type': 'admin',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
 
         admin_data.pop('password', None)
@@ -65,18 +65,21 @@ def login():
         })
 
     user = conn.execute(
-        'SELECT * FROM users WHERE display_name = ? AND password = ?',
-        (login_input, password)
+        '''
+        SELECT * FROM users 
+        WHERE (email = ? OR studentnr = ?) 
+        ''',
+        (login_input, login_input)
     ).fetchone()
 
     conn.close()
 
-    if user:
+    if user and check_password_hash(user['password'], password):
         user_data = dict(user)
         token = jwt.encode({
             'display_name': user_data['display_name'],
             'type': 'user',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }, app.secret_key, algorithm='HS256')
 
         user_data.pop('password', None)
@@ -89,6 +92,7 @@ def login():
         })
 
     return jsonify({"success": False, "message": "Incorrect username or password"}), 401
+
 
 
 @app.route('/profile', methods=['GET'])
