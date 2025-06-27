@@ -17,38 +17,45 @@ Navigeer naar het juiste project door het commando hieronder uit te voeren in de
 cd wp4-2025-react-1b5-bamischijf
 ```
 ## 3. Eigen IP
-Voer bij login.jsx op de plaats van 'http://127.0.0.1:5000' je eigen ip adres in die verschijnt in de terminal als je je flask opent.
+Run het bestand get_current_ip.py zodat er een .env bestand wordt aangemaakt met je eigen IP-adress. Dit .env bestand komt in de backendtest/Racademy/.env. Dit is niet de bedoeling, verplaats dit .env bestand naar de Racademy map die in de root staat. Daarna kan je de lege Racademy map verwijderen.
 
-## 4. Open Docker
+## 4. Database genereren
+Run het bestand database_generator.py zodat er een database wordt aangemaakt.
+
+## 5. Open Docker
 Open de Docker Desktopp applicatie op jouw laptop of computer. Mocht je deze nog niet hebben moet je deze even downloaden vanaf het internet.
 Dit is de link waar je naartoe moet: https://www.docker.com 
 
-## 5. Voer nog een commando uit in de terminal
+## 6. Voer nog een commando uit in de terminal
 ```shell
 docker-compose up --build
 ```
-## 6. Navigeer naar Racademy
+## 7. Navigeer naar Racademy
 Navigeer naar de juiste map, naar de Racademy map. Doe dit ook in de terminal door het volgende commando uit te voeren.
 ```shell
 cd Racademy
 ```
-## 7. Installeer de juiste dingen
+## 8. Installeer de juiste dingen
 Nu moeten er nog een aantal dingen worden geínstalleerd, doe dit door door de volgende commando's uit te voeren in de terminal.
 ```shell
-npm install
+npm install --legacy-peer-deps 
 ```
 En daarna deze:
 ```shell
-npx expo start
+npx expo start -c
 ```
-## 8. Het openen
+## 9. Het openen
 Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web te zien moet je nu op 'w' drukken. Als je hem op een mobiel wilt openen moet de Expo Go app downloaden via de AppStore of de Playstore, als dat is gebeurt kan je met je camera de QR-code scannen en openen via de app.
 
 # Inloggegevens
 
 ### Admin
-Gebruikersnaam: john@pork.nl
-Wachtwoord: halal
+#### Gebruikersnaam: john@pork.nl
+#### Wachtwoord: halal
+
+### User
+#### Gebruikersnaam: 1234567@hr.nl
+#### Wachtwoord: lol
 
 # Bronvermelding
 - (Using A ScrollView · React Native, 2025)
