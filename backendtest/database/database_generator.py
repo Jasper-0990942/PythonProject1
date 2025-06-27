@@ -122,19 +122,19 @@ class WP4DatabaseGenerator:
         self.__execute_transaction_statement(create_statement)
         print("✅ source_tags table created")
 
-        def create_table_favorites(self):
-            create_statement = """
-                CREATE TABLE IF NOT EXISTS favorites (
-                    favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER NOT NULL,
-                    source_id INTEGER NOT NULL,
-                    UNIQUE(user_id, source_id),
-                    FOREIGN KEY (user_id) REFERENCES users (user_id),
-                    FOREIGN KEY (source_id) REFERENCES sources (source_id)
-                );
-            """
-            self.__execute_transaction_statement(create_statement)
-            print("✅ favorites table created")
+    def create_table_favorites(self):
+        create_statement = """
+            CREATE TABLE IF NOT EXISTS favorites (
+                favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                favoriter_type TEXT NOT NULL CHECK (favoriter_type IN ('user', 'admin')),
+                favoriter_id INTEGER NOT NULL,
+                source_id INTEGER NOT NULL,
+                UNIQUE(favoriter_type, favoriter_id, source_id),
+                FOREIGN KEY (source_id) REFERENCES sources (source_id)
+            );
+        """
+        self.__execute_transaction_statement(create_statement)
+        print("✅ favorites table created")
 
     def insert_admin(self):
         admins = [
@@ -146,19 +146,24 @@ class WP4DatabaseGenerator:
 
     def insert_user(self):
         users = [
-            ("1234567@hr.nl", "jansmit", "1234567","lol", "jan", "van", "smit", "20-03-2001", "actief")
-
+            ("1234567@hr.nl", "jansmit", "1234567", "lol", "jan", "van", "smit", "20-03-2001", "actief")
         ]
         insert_statement = "INSERT INTO users (email, display_name, studentnr, password, fname, infix, lname, dateofbirth, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
         self.__execute_many_transaction_statement(insert_statement, users)
         print("✅ Default users created")
 
+    def insert_favorites(self):
+        # Insert some example favorites for both users and admins
+        favorites = [
+            ("user", 1, 1),  # favoriter_type, favoriter_id, source_id
+            ("admin", 1, 1)
+        ]
+        insert_statement = "INSERT INTO favorites (favoriter_type, favoriter_id, source_id) VALUES (?, ?, ?);"
+        self.__execute_many_transaction_statement(insert_statement, favorites)
+        print("✅ Default favorites created")
 
-    # Transacties zijn duur, dat wil zeggen, ze kosten veel tijd en CPU kracht. Als je veel insert doet
-    # bundel je ze in één transactie, of je gebruikt de SQLite executemany methode.
-    def __execute_many_transaction_statement(
-            self, create_statement, list_of_parameters=()
-    ):
+    # Helper methods for executing SQL statements
+    def __execute_many_transaction_statement(self, create_statement, list_of_parameters=()):
         c = self.conn.cursor()
         c.executemany(create_statement, list_of_parameters)
         self.conn.commit()
@@ -195,9 +200,6 @@ class WP4DatabaseGenerator:
 if __name__ == "__main__":
     my_path = Path(__file__).parent.resolve()
     root_backend = my_path.parent
-    # Deze slashes komen uit de "Path" module. Dit is een module die je kan gebruiken
-    # om paden te maken. Dit is handig omdat je dan niet zelf hoeft te kijken of je
-    # een / (mac) of een \ (windows) moet gebruiken.
     database_path = root_backend / "database" / "database.db"
     database_generator = WP4DatabaseGenerator(
         database_path, overwrite=True, initial_data=True

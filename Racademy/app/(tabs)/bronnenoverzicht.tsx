@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
-import { useRouter} from "expo-router";
+import { useRouter } from "expo-router";
 
 const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
@@ -22,49 +31,85 @@ type Bron = {
 export default function BronnenOverzichtScreen() {
   const [bronnen, setBronnen] = useState<Bron[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [favorites, setFavorites] = useState<number[]>([]);
   const [searchText, setSearchText] = useState('');
-
-
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchBronnen = async () => {
+    const fetchData = async () => {
       try {
         const token = await AsyncStorage.getItem('authToken');
-        if (!token) {
-          return;
-        }
-        const response = await fetch(`${apiBaseUrl}/bronnen`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        if (!token) return;
+
+        const bronnenResponse = await fetch(`${apiBaseUrl}/bronnen`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const json = await response.json();
-        if (json.success) {
-          setBronnen(json.bronnen);
-        } else {
-          alert('Fout bij laden bronnen');
-        }
+        const bronnenJson = await bronnenResponse.json();
+
+        const favoritesResponse = await fetch(`${apiBaseUrl}/favorites`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favoritesJson = await favoritesResponse.json();
+
+        if (bronnenJson.success) setBronnen(bronnenJson.bronnen);
+        if (favoritesJson.success) setFavorites(favoritesJson.favorites);
+
       } catch (e) {
-        alert('Netwerkfout');
+        alert('Netwerkfout bij ophalen gegevens');
       }
       setLoading(false);
     };
 
-    fetchBronnen();
+    fetchData();
   }, []);
+
+  const toggleFavorite = async (source_id: number) => {
+    const token = await AsyncStorage.getItem('authToken');
+    if (!token) return;
+
+    const isFavorited = favorites.includes(source_id);
+    const method = isFavorited ? 'DELETE' : 'POST';
+
+    const response = await fetch(`${apiBaseUrl}/favorites`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ source_id }),
+    });
+
+    if (response.ok) {
+      setFavorites(prev =>
+        isFavorited ? prev.filter(id => id !== source_id) : [...prev, source_id]
+      );
+    } else {
+      alert('Fout bij updaten favoriet');
+    }
+  };
+
+  const filteredBronnen = bronnen.filter((bron) =>
+    (bron.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      bron.description.toLowerCase().includes(searchText.toLowerCase())) &&
+    (!showOnlyFavorites || favorites.includes(bron.source_id))
+  );
 
   if (loading) return <ActivityIndicator style={{ flex: 1 }} size="large" color="#d2214b" />;
 
-  const filteredBronnen = bronnen.filter((bron) =>
-  bron.title.toLowerCase().includes(searchText.toLowerCase()) ||
-  bron.description.toLowerCase().includes(searchText.toLowerCase())
-);
-
   return (
     <View style={styles.container}>
-            <Pressable style={styles.addButton} onPress={() => router.push('/explore')}>
+      <Pressable style={styles.addButton} onPress={() => router.push('/explore')}>
         <Text style={styles.addButtonText}>Bronnen Toevoegen</Text>
+      </Pressable>
+
+      <Pressable
+        style={[styles.addButton, { backgroundColor: showOnlyFavorites ? '#444' : '#d2214b' }]}
+        onPress={() => setShowOnlyFavorites(prev => !prev)}
+      >
+        <Text style={styles.addButtonText}>
+          {showOnlyFavorites ? 'Toon alles' : 'Toon alleen favorieten'}
+        </Text>
       </Pressable>
 
       <TextInput
@@ -79,7 +124,14 @@ export default function BronnenOverzichtScreen() {
         keyExtractor={(item) => item.source_id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.title}>{item.title}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Text style={styles.title}>{item.title}</Text>
+              <TouchableOpacity onPress={() => toggleFavorite(item.source_id)}>
+                <Text style={{ fontSize: 24 }}>
+                  {favorites.includes(item.source_id) ? '❤️' : '🤍'}
+                </Text>
+              </TouchableOpacity>
+            </View>
             <Text style={styles.description}>{item.description}</Text>
           </View>
         )}
@@ -95,7 +147,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fdf3e8',
     padding: 20,
   },
-
   card: {
     backgroundColor: '#fff',
     padding: 24,
@@ -126,7 +177,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
   },
-    addButton: {
+  addButton: {
     backgroundColor: '#d2214b',
     paddingVertical: 12,
     paddingHorizontal: 24,
@@ -139,7 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 18,
   },
-    searchInput: {
+  searchInput: {
     backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 16,
