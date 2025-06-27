@@ -284,6 +284,25 @@ def bronnen():
 
     return jsonify({'success': True, 'message': 'Favorited'})
 
+@app.route('/bron/<int:bron_id>', methods=['GET'])
+def get_bron_details(bron_id):
+    conn = get_db_connection()
+    bron = conn.execute('SELECT title, link, description, ISBN FROM sources WHERE source_id = ?', (bron_id,)).fetchone()
+    conn.close()
+
+    if bron is None:
+        return jsonify({'success': False, 'message': 'Bron not found'}), 404
+
+    bron_data = {
+        'title': bron['title'],
+        'link': bron['link'],
+        'description': bron['description'],
+        'ISBN': bron['ISBN'],
+    }
+
+    return jsonify({'success': True, 'bron': bron_data}), 200
+
+
 
 
 @app.route('/favorites', methods=['GET'])
