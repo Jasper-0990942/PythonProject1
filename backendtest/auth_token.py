@@ -1,8 +1,12 @@
 from functools import wraps
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 import jwt
 
+
+
+
 app = Flask(__name__)
+
 
 def token_required(user_type=None):
     def decorator(f):
@@ -16,7 +20,7 @@ def token_required(user_type=None):
             if not token:
                 return jsonify({'success': False, 'message': 'Token is missing'}), 401
             try:
-                data = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+                data = jwt.decode(token, current_app.secret_key, algorithms=['HS256'])
                 if user_type and data.get('type') != user_type:
                     return jsonify({'success': False, 'message': 'Access denied'}), 403
                 request.user = data

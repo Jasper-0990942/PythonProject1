@@ -4,7 +4,7 @@ from flask_cors import CORS
 import jwt
 from datetime import datetime, timedelta, timezone
 import os
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from auth_token import token_required
 
@@ -190,19 +190,31 @@ def update_profile():
 
     if user['type'] == 'admin':
         email = user['email']
-        new_email = data.get('email')
-        password = data.get('password')
-        fname = data.get('fname')
-        infix = data.get('infix')
-        lname = data.get('lname')
-        dateofbirth = data.get('dateofbirth')
-        status = data.get('status')
+        # Fetch existing data
+        admin = conn.execute('SELECT * FROM admins WHERE email = ?', (email,)).fetchone()
+        if not admin:
+            conn.close()
+            return jsonify({'success': False, 'message': 'Admin not found'}), 404
+
+        # Resolve fields: if new provided, else keep old
+        new_email = data.get('email') or admin['email']
+        raw_password = data.get('password')
+        if raw_password:
+            hashed_password = generate_password_hash(raw_password)
+        else:
+            hashed_password = admin['password']
+
+        fname = data.get('fname') or admin['fname']
+        infix = data.get('infix') or admin['infix']
+        lname = data.get('lname') or admin['lname']
+        dateofbirth = data.get('dateofbirth') or admin['dateofbirth']
+        status = data.get('status') or admin['status']
 
         conn.execute(
             """UPDATE admins
                SET email = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
                WHERE email = ?""",
-            (new_email, password, fname, infix, lname, dateofbirth, status, email)
+            (new_email, hashed_password, fname, infix, lname, dateofbirth, status, email)
         )
         conn.commit()
         conn.close()
@@ -211,20 +223,31 @@ def update_profile():
 
     elif user['type'] == 'user':
         display_name = user['display_name']
-        new_display_name = data.get('display_name')
-        studentnr = data.get('studentnr')
-        password = data.get('password')
-        fname = data.get('fname')
-        infix = data.get('infix')
-        lname = data.get('lname')
-        dateofbirth = data.get('dateofbirth')
-        status = data.get('status')
+        # Fetch existing user data
+        usr = conn.execute('SELECT * FROM users WHERE display_name = ?', (display_name,)).fetchone()
+        if not usr:
+            conn.close()
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+
+        new_display_name = data.get('display_name') or usr['display_name']
+        studentnr = data.get('studentnr') or usr['studentnr']
+        raw_password = data.get('password')
+        if raw_password:
+            hashed_password = generate_password_hash(raw_password)
+        else:
+            hashed_password = usr['password']
+
+        fname = data.get('fname') or usr['fname']
+        infix = data.get('infix') or usr['infix']
+        lname = data.get('lname') or usr['lname']
+        dateofbirth = data.get('dateofbirth') or usr['dateofbirth']
+        status = data.get('status') or usr['status']
 
         conn.execute(
             """UPDATE users
                SET display_name = ?, studentnr = ?, password = ?, fname = ?, infix = ?, lname = ?, dateofbirth = ?, status = ?
                WHERE display_name = ?""",
-            (new_display_name, studentnr, password, fname, infix, lname, dateofbirth, status, display_name)
+            (new_display_name, studentnr, hashed_password, fname, infix, lname, dateofbirth, status, display_name)
         )
         conn.commit()
         conn.close()
@@ -232,6 +255,7 @@ def update_profile():
         return jsonify({'success': True, 'message': 'User profile updated'}), 200
 
     return jsonify({'success': False, 'message': 'Invalid user type'}), 400
+
 
 
 @app.route('/get_resources', methods=['POST'])
@@ -248,6 +272,16 @@ def get_resources():
 
     resource_list = [dict(r) for r in resources]
     return jsonify({'success': True, 'resources': resource_list}), 200
+
+@app.route('/bronnen', methods=['GET'])
+def bronnen():
+    conn = get_db_connection()
+    sources_rows = conn.execute('SELECT source_id, user_id, sourcetype_id, title, description, link, ISBN, img, date_created FROM sources').fetchall()
+    conn.close()
+
+    bronnen_list = [dict(row) for row in sources_rows]
+
+    return jsonify({'success': True, 'bronnen': bronnen_list})
 
 
 if __name__ == '__main__':
