@@ -24,6 +24,7 @@ class WP4DatabaseGenerator:
             self.insert_admin()
             self.insert_user()
             self.insert_favorites()
+            self.insert_minimal_source()
 
     def create_table_users(self):
         create_statement = """
@@ -136,27 +137,22 @@ class WP4DatabaseGenerator:
         self.__execute_transaction_statement(create_statement)
         print("✅ favorites table created")
 
-    def insert_static_python_source(self):
+    def insert_minimal_source(self):
         sources = [
             (
-                1,
-                1,
-                "Python for Everybody",
-                "An excellent introduction to Python programming for beginners, covering web and data applications.",
-                "https://www.py4e.com/",
-                "978-1530051120",
-                "https://www.py4e.com/images/py4e-600.png",
-                "2025-06-27"
+                1,  # user_id (must exist)
+                "Simple Python Guide",
+                "A short and sweet Python reference.",
+                "https://example.com/python-guide"
             )
         ]
 
         insert_statement = """
-            INSERT INTO sources (user_id, sourcetype_id, title, description, link, ISBN, img, date_created)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO sources (user_id, title, description, link)
+            VALUES (?, ?, ?, ?);
         """
-
         self.__execute_many_transaction_statement(insert_statement, sources)
-        print("✅ Python-related static source inserted")
+        print("✅ Minimal source inserted")
 
     def insert_admin(self):
         admins = [
@@ -175,9 +171,8 @@ class WP4DatabaseGenerator:
         print("✅ Default users created")
 
     def insert_favorites(self):
-        # Insert some example favorites for both users and admins
         favorites = [
-            ("user", 1, 1),  # favoriter_type, favoriter_id, source_id
+            ("user", 1, 1),
             ("admin", 1, 1)
         ]
         insert_statement = "INSERT INTO favorites (favoriter_type, favoriter_id, source_id) VALUES (?, ?, ?);"
