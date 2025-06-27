@@ -13,7 +13,7 @@ def find_local_ip_address():
     return local_ip
 
 def save_env_variable(ip_address: str, env_file: Path):
-    content = f"EXPO_PUBLIC_API_URL=http://{ip_address}:5000\n"
+    content = f"EXPO_PUBLIC_BACKEND_URL=http://{ip_address}:5000\n"
     env_file.parent.mkdir(parents=True, exist_ok=True)
     with env_file.open('w') as file:
         file.write(content)

@@ -4,8 +4,10 @@ from flask_cors import CORS
 import jwt
 from datetime import datetime, timedelta, timezone
 import os
+from werkzeug.security import check_password_hash
+
 from auth_token import token_required
-import
+
 from blueprints.users import users_bp
 from blueprints.sources import (sources_bp)
 
@@ -52,7 +54,7 @@ def login():
         token = jwt.encode({
             'email': admin_data['email'],
             'type': 'admin',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
         }, app.secret_key, algorithm='HS256')
 
         admin_data.pop('password', None)
@@ -79,7 +81,7 @@ def login():
         token = jwt.encode({
             'display_name': user_data['display_name'],
             'type': 'user',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
         }, app.secret_key, algorithm='HS256')
 
         user_data.pop('password', None)
@@ -92,7 +94,6 @@ def login():
         })
 
     return jsonify({"success": False, "message": "Incorrect username or password"}), 401
-
 
 
 @app.route('/profile', methods=['GET'])
