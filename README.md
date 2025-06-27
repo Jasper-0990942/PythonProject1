@@ -57,6 +57,17 @@ Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web t
 #### Gebruikersnaam: 1234567@hr.nl
 #### Wachtwoord: lol
 
+# P.s.
+Mocht je deze melding krijgen: ```command not found: npm```, open dan een terminal buiten het project gewoon op je laptop of pc en voer dan dit commando uit:
+mac OS (gebruiken homebrew):
+```brew install node```
+Ubuntu/Linux:
+```sudo apt update```
+```sudo apt install nodejs npm```
+of op Windows:
+dan moet je hem downloaden via: https://nodejs.org/ 
+
+
 # Bronvermelding
 - (Using A ScrollView · React Native, 2025)
 - (Net Ninja, 2025)
