@@ -54,31 +54,13 @@ class Users:
         db = Database()
         cursor, con = db.connect_db()
         cursor.execute("""
-            SELECT 
-                user_id AS id,
-                email,
-                fname,
-                infix,
-                lname,
-                dateofbirth,
-                status,
-                studentnr,
-                'user' AS role
+            SELECT user_id AS id, email, fname, infix, lname, dateofbirth, status, studentnr, 'user' AS role
             FROM users
             WHERE user_id = ?
     
             UNION
     
-            SELECT 
-                admin_id AS id,
-                email,
-                fname,
-                infix,
-                lname,
-                dateofbirth,
-                status,
-                NULL AS studentnr,
-                'admin' AS role
+            SELECT admin_id AS id, email, fname, infix, lname, dateofbirth, status, NULL AS studentnr, 'admin' AS role
             FROM admins
             WHERE admin_id = ?
         """, (user_id, user_id))
@@ -100,8 +82,6 @@ class Users:
             print("Fout bij blokkeren:", e)
             return False
 
-
-
     def get_user_by_email(self, email):
         db = Database()
         cursor, con = db.connect_db()
@@ -109,6 +89,14 @@ class Users:
         user = cursor.fetchone()
         con.close()
         return user
+
+    def get_admin_by_email(self, email):
+        db = Database()
+        cursor, con = db.connect_db()
+        cursor.execute("SELECT * FROM admins WHERE email = ?", (email,))
+        admin = cursor.fetchone()
+        con.close()
+        return admin
 
     def create_admin(self, email, password, fname, infix, lname, dateofbirth, status):
         db = Database()
@@ -127,3 +115,17 @@ class Users:
             return False
         finally:
             con.close()
+
+    def unblock_user_by_id(self, role, user_id):
+        try:
+            if role == 'user':
+                self.cursor.execute("UPDATE users SET status = 'actief' WHERE user_id = ?", (user_id,))
+            else:
+                return False
+            if self.cursor.rowcount == 0:
+                return False
+            self.con.commit()
+            return True
+        except Exception as e:
+            print("Fout bij deblokkeren:", e)
+            return False
