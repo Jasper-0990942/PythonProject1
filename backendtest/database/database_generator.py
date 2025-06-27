@@ -136,6 +136,28 @@ class WP4DatabaseGenerator:
         self.__execute_transaction_statement(create_statement)
         print("✅ favorites table created")
 
+    def insert_static_python_source(self):
+        sources = [
+            (
+                1,
+                1,
+                "Python for Everybody",
+                "An excellent introduction to Python programming for beginners, covering web and data applications.",
+                "https://www.py4e.com/",
+                "978-1530051120",
+                "https://www.py4e.com/images/py4e-600.png",
+                "2025-06-27"
+            )
+        ]
+
+        insert_statement = """
+            INSERT INTO sources (user_id, sourcetype_id, title, description, link, ISBN, img, date_created)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        """
+
+        self.__execute_many_transaction_statement(insert_statement, sources)
+        print("✅ Python-related static source inserted")
+
     def insert_admin(self):
         admins = [
             ("john@pork.nl", "halal", "John", "pork", "19-09-2000", "actief")
