@@ -43,11 +43,6 @@ export default function UserDetails() {
     const blockUser = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken');
-            console.log('API base URL:', apiBaseUrl);
-            console.log('Fetch URL:', `${apiBaseUrl}/users/${role}/${id}/block`);
-            console.log('Gebruikersrol uit URL:', role);
-            console.log('Token:', token);
-
             const res = await fetch(`${apiBaseUrl}/users/${role}/${id}/block`, {
                 method: 'PATCH',
                 headers: {
