@@ -257,7 +257,6 @@ def update_profile():
     return jsonify({'success': False, 'message': 'Invalid user type'}), 400
 
 
-
 @app.route('/get_resources', methods=['POST'])
 @token_required()
 def get_resources():

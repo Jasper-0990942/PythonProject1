@@ -2,9 +2,6 @@ from functools import wraps
 from flask import Flask, request, jsonify, current_app
 import jwt
 
-
-
-
 app = Flask(__name__)
 
 
