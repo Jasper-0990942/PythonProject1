@@ -28,27 +28,27 @@ export default function TabLayout() {
         }),
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="bronnen"
-        options={{
-          title: 'Bronnen',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="gebruikersoverzicht"
-        options={{
-          title: 'OverzichtUsers',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.3.fill" color={color} />,
-        }}
-      />
+      {/*<Tabs.Screen*/}
+      {/*  name="index"*/}
+      {/*  options={{*/}
+      {/*    title: 'Home',*/}
+      {/*    tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,*/}
+      {/*  }}*/}
+      {/*/>*/}
+      {/*<Tabs.Screen*/}
+      {/*  name="bronnen"*/}
+      {/*  options={{*/}
+      {/*    title: 'Bronnen',*/}
+      {/*    tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,*/}
+      {/*  }}*/}
+      {/*/>*/}
+      {/*<Tabs.Screen*/}
+      {/*  name="gebruikersoverzicht"*/}
+      {/*  options={{*/}
+      {/*    title: 'OverzichtUsers',*/}
+      {/*    tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.3.fill" color={color} />,*/}
+      {/*  }}*/}
+      {/*/>*/}
     </Tabs>
   );
 }

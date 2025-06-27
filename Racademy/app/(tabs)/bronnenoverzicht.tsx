@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { useRouter} from "expo-router";
 
 const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
@@ -20,6 +21,7 @@ type Bron = {
 export default function BronnenOverzichtScreen() {
   const [bronnen, setBronnen] = useState<Bron[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBronnen = async () => {
@@ -52,6 +54,10 @@ export default function BronnenOverzichtScreen() {
 
   return (
     <View style={styles.container}>
+            <Pressable style={styles.addButton} onPress={() => router.push('/explore')}>
+        <Text style={styles.addButtonText}>Bronnen Toevoegen</Text>
+      </Pressable>
+
       <FlatList
         data={bronnen}
         keyExtractor={(item) => item.source_id.toString()}
@@ -72,17 +78,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fdf3e8',
     padding: 20,
-    // Remove alignItems and justifyContent to allow list full width
   },
+
   card: {
-    backgroundColor: '#fff', // make card white to stand out
+    backgroundColor: '#fff',
     padding: 24,
     borderRadius: 12,
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
     marginBottom: 16,
-    // optional: add shadow for iOS/Android
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -90,7 +95,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 24, // smaller than 32 to fit list items better
+    fontSize: 24,
     fontWeight: '700',
     marginBottom: 8,
     color: '#03193c',
@@ -104,5 +109,18 @@ const styles = StyleSheet.create({
     color: '#999',
     textAlign: 'center',
     marginTop: 40,
+  },
+    addButton: {
+    backgroundColor: '#d2214b',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignSelf: 'center',
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 18,
   },
 });
