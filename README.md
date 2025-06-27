@@ -59,12 +59,12 @@ Om de applicatie te openen kan je verschillende dingen doen. Om hem op het web t
 
 # P.s.
 Mocht je deze melding krijgen: ```command not found: npm```, open dan een terminal buiten het project gewoon op je laptop of pc en voer dan dit commando uit:
-mac OS (gebruiken homebrew):
+### mac OS (gebruiken homebrew):
 ```brew install node```
-Ubuntu/Linux:
+### Ubuntu/Linux:
 ```sudo apt update```
 ```sudo apt install nodejs npm```
-of op Windows:
+### of op Windows:
 dan moet je hem downloaden via: https://nodejs.org/ 
 
 
