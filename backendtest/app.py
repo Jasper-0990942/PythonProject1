@@ -47,22 +47,30 @@ def login():
         (login_input,)
     ).fetchone()
 
-    if admin and check_password_hash(admin['password'], password):
-        admin_data = dict(admin)
-        token = jwt.encode({
-            'email': admin_data['email'],
-            'type': 'admin',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
-        }, app.secret_key, algorithm='HS256')
+    if admin:
+        stored_password = admin['password']
+        password_matches = (
+            check_password_hash(stored_password, password) or
+            stored_password == password  # Fallback: plain-text check
+        )
 
-        admin_data.pop('password', None)
+        if password_matches:
+            admin_data = dict(admin)
+            token = jwt.encode({
+                'email': admin_data['email'],
+                'type': 'admin',
+                'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
+            }, app.secret_key, algorithm='HS256')
 
-        return jsonify({
-            'success': True,
-            'type': 'admin',
-            'token': token,
-            'user': admin_data
-        })
+            admin_data.pop('password', None)
+
+            conn.close()
+            return jsonify({
+                'success': True,
+                'type': 'admin',
+                'token': token,
+                'user': admin_data
+            })
 
     user = conn.execute(
         '''
@@ -74,24 +82,32 @@ def login():
 
     conn.close()
 
-    if user and check_password_hash(user['password'], password):
-        user_data = dict(user)
-        token = jwt.encode({
-            'display_name': user_data['display_name'],
-            'type': 'user',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
-        }, app.secret_key, algorithm='HS256')
+    if user:
+        stored_password = user['password']
+        password_matches = (
+            check_password_hash(stored_password, password) or
+            stored_password == password  # Fallback: plain-text check
+        )
 
-        user_data.pop('password', None)
+        if password_matches:
+            user_data = dict(user)
+            token = jwt.encode({
+                'display_name': user_data['display_name'],
+                'type': 'user',
+                'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
+            }, app.secret_key, algorithm='HS256')
 
-        return jsonify({
-            'success': True,
-            'type': 'user',
-            'token': token,
-            'user': user_data
-        })
+            user_data.pop('password', None)
+
+            return jsonify({
+                'success': True,
+                'type': 'user',
+                'token': token,
+                'user': user_data
+            })
 
     return jsonify({"success": False, "message": "Incorrect username or password"}), 401
+
 
 
 @app.route('/profile', methods=['GET'])
