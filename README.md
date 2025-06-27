@@ -62,8 +62,8 @@ Mocht je deze melding krijgen: ```command not found: npm```, open dan een termin
 ### mac OS (gebruiken homebrew):
 ```brew install node```
 ### Ubuntu/Linux:
-```sudo apt update```
-```sudo apt install nodejs npm```
+#### ```sudo apt update```
+#### ```sudo apt install nodejs npm```
 ### of op Windows:
 dan moet je hem downloaden via: https://nodejs.org/ 
 
