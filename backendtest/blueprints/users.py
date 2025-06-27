@@ -62,7 +62,7 @@ def get_user_by_role_and_id(role, user_id):
     if role == 'user':
         cursor = user_model.cursor
         cursor.execute("""
-            SELECT user_id AS id, email, fname, infix, lname, dateofbirth, status, studentnr, 'user' AS role
+            SELECT user_id AS id, display_name, email, fname, infix, lname, dateofbirth, status, studentnr, 'user' AS role
             FROM users
             WHERE user_id = ? """, (user_id,))
         row = cursor.fetchone()
