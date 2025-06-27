@@ -52,7 +52,7 @@ def login():
         token = jwt.encode({
             'email': admin_data['email'],
             'type': 'admin',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
         }, app.secret_key, algorithm='HS256')
 
         admin_data.pop('password', None)
@@ -76,7 +76,7 @@ def login():
         token = jwt.encode({
             'display_name': user_data['display_name'],
             'type': 'user',
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=30)
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
         }, app.secret_key, algorithm='HS256')
 
         user_data.pop('password', None)
