@@ -157,17 +157,17 @@ export default function ProfileScreen() {
       <Text style={styles.title}>Profiel Bewerken</Text>
 
 
-        <TextInput style={styles.input} placeholder="Email" value={profile.email} onChangeText={email => setProfile(p => ({ ...p, email }))} />
+        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#7f7f7f" value={profile.email} onChangeText={email => setProfile(p => ({ ...p, email }))} />
         <>
-          <TextInput style={styles.input} placeholder="Gebruikersnaam" value={profile.display_name} onChangeText={display_name => setProfile(p => ({ ...p, display_name }))} />
-          <TextInput style={styles.input} placeholder="Studentnummer" value={profile.studentnr} onChangeText={studentnr => setProfile(p => ({ ...p, studentnr }))} />
+          <TextInput style={styles.input} placeholder="Gebruikersnaam" placeholderTextColor="#7f7f7f" value={profile.display_name} onChangeText={display_name => setProfile(p => ({ ...p, display_name }))} />
+          <TextInput style={styles.input} placeholder="Studentnummer" placeholderTextColor="#7f7f7f" value={profile.studentnr} onChangeText={studentnr => setProfile(p => ({ ...p, studentnr }))} />
         </>
 
-      <TextInput style={styles.input} placeholder="Voornaam" value={profile.fname} onChangeText={fname => setProfile(p => ({ ...p, fname }))} />
-      <TextInput style={styles.input} placeholder="Tussenvoegsel" value={profile.infix} onChangeText={infix => setProfile(p => ({ ...p, infix }))} />
-      <TextInput style={styles.input} placeholder="Achternaam" value={profile.lname} onChangeText={lname => setProfile(p => ({ ...p, lname }))} />
-      <TextInput style={styles.input} placeholder="Geboortedatum" value={profile.dateofbirth} onChangeText={dateofbirth => setProfile(p => ({ ...p, dateofbirth }))} />
-      <TextInput style={styles.input} placeholder="Wachtwoord " secureTextEntry value={profile.password} onChangeText={password => setProfile(p => ({ ...p, password }))} />
+      <TextInput style={styles.input} placeholder="Voornaam" placeholderTextColor="#7f7f7f" value={profile.fname} onChangeText={fname => setProfile(p => ({ ...p, fname }))} />
+      <TextInput style={styles.input} placeholder="Tussenvoegsel" placeholderTextColor="#7f7f7f" value={profile.infix} onChangeText={infix => setProfile(p => ({ ...p, infix }))} />
+      <TextInput style={styles.input} placeholder="Achternaam" placeholderTextColor="#7f7f7f" value={profile.lname} onChangeText={lname => setProfile(p => ({ ...p, lname }))} />
+      <TextInput style={styles.input} placeholder="Geboortedatum" placeholderTextColor="#7f7f7f" value={profile.dateofbirth} onChangeText={dateofbirth => setProfile(p => ({ ...p, dateofbirth }))} />
+      <TextInput style={styles.input} placeholder="Wachtwoord " placeholderTextColor="#7f7f7f" secureTextEntry value={profile.password} onChangeText={password => setProfile(p => ({ ...p, password }))} />
 
       <Pressable style={styles.button} onPress={handleSaveProfile}>
         <Text style={styles.buttonText}>Opslaan</Text>

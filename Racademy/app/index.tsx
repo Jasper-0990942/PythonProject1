@@ -42,7 +42,7 @@ function Login() {
         
         Alert.alert('Succes', `ingelogd als ${data.type}!`);
 
-        router.push('/gebruikersoverzicht');
+        router.push('/bronnenoverzicht');
 
       } else {
         alert(data.message || 'Invalid credentials');
@@ -72,6 +72,7 @@ function Login() {
         <TextInput
           style={styles.input}
           placeholder="Email of studentnummer"
+          placeholderTextColor="#7f7f7f"
           value={login}
           onChangeText={setLogin}
           autoCapitalize="none"
@@ -80,6 +81,7 @@ function Login() {
         <TextInput
           style={styles.input}
           placeholder="Wachtwoord"
+          placeholderTextColor="#7f7f7f"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
