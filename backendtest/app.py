@@ -193,13 +193,11 @@ def update_profile():
 
     if user['type'] == 'admin':
         email = user['email']
-        # Fetch existing data
         admin = conn.execute('SELECT * FROM admins WHERE email = ?', (email,)).fetchone()
         if not admin:
             conn.close()
             return jsonify({'success': False, 'message': 'Admin not found'}), 404
 
-        # Resolve fields: if new provided, else keep old
         new_email = data.get('email') or admin['email']
         raw_password = data.get('password')
         if raw_password:
@@ -284,6 +282,196 @@ def bronnen():
     bronnen_list = [dict(row) for row in sources_rows]
 
     return jsonify({'success': True, 'bronnen': bronnen_list})
+
+
+
+    return jsonify({'success': True, 'message': 'Favorited'})
+
+@app.route('/bron/<int:bron_id>', methods=['GET'])
+def get_bron_details(bron_id):
+    conn = get_db_connection()
+    bron = conn.execute('SELECT title, link, description, ISBN FROM sources WHERE source_id = ?', (bron_id,)).fetchone()
+    conn.close()
+
+    if bron is None:
+        return jsonify({'success': False, 'message': 'Bron not found'}), 404
+
+    bron_data = {
+        'title': bron['title'],
+        'link': bron['link'],
+        'description': bron['description'],
+        'ISBN': bron['ISBN'],
+    }
+
+    return jsonify({'success': True, 'bron': bron_data}), 200
+
+
+
+
+@app.route('/favorites', methods=['GET'])
+@token_required()
+def get_favorites():
+    user = request.user
+    favoriter_type = user.get('type')
+
+    conn = get_db_connection()
+    try:
+        if favoriter_type not in ('admin', 'user'):
+            conn.close()
+            return jsonify({'success': False, 'message': 'Invalid user type'}), 400
+
+        if favoriter_type == 'admin':
+            email = user.get('email')
+            favoriter = conn.execute('SELECT admin_id FROM admins WHERE email = ?', (email,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'Admin not found'}), 404
+            favoriter_id = favoriter['admin_id']
+        else:
+            display_name = user.get('display_name')
+            favoriter = conn.execute('SELECT user_id FROM users WHERE display_name = ?', (display_name,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'User not found'}), 404
+            favoriter_id = favoriter['user_id']
+
+        rows = conn.execute(
+            "SELECT source_id FROM favorites WHERE favoriter_type = ? AND favoriter_id = ?",
+            (favoriter_type, favoriter_id)
+        ).fetchall()
+
+        conn.close()
+
+        favorite_source_ids = [row['source_id'] for row in rows]
+
+        return jsonify({'success': True, 'favorites': favorite_source_ids}), 200
+
+    except Exception as e:
+        conn.close()
+        print(f"Error fetching favorites: {e}")
+        return jsonify({'success': False, 'message': 'Error fetching favorites'}), 500
+
+
+
+
+@app.route('/favorites', methods=['POST'])
+@token_required()
+def toggle_favorite():
+    user = request.user  # Decoded JWT
+    data = request.get_json()
+    source_id = data.get('source_id')
+    if not source_id:
+        return jsonify({'success': False, 'message': 'Missing source_id'}), 400
+
+    favoriter_type = user.get('type')  # 'admin' or 'user'
+
+    conn = get_db_connection()
+
+    try:
+        if favoriter_type not in ('admin', 'user'):
+            conn.close()
+            return jsonify({'success': False, 'message': 'Invalid user type'}), 400
+
+        # Get favoriter_id based on type
+        if favoriter_type == 'admin':
+            email = user.get('email')
+            favoriter = conn.execute('SELECT admin_id FROM admins WHERE email = ?', (email,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'Admin not found'}), 404
+            favoriter_id = favoriter['admin_id']
+        else:
+            display_name = user.get('display_name')
+            favoriter = conn.execute('SELECT user_id FROM users WHERE display_name = ?', (display_name,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'User not found'}), 404
+            favoriter_id = favoriter['user_id']
+
+        existing = conn.execute(
+            """
+            SELECT 1 FROM favorites
+            WHERE favoriter_type = ? AND favoriter_id = ? AND source_id = ?
+            """,
+            (favoriter_type, favoriter_id, source_id)
+        ).fetchone()
+
+        if existing:
+            conn.execute(
+                """
+                DELETE FROM favorites
+                WHERE favoriter_type = ? AND favoriter_id = ? AND source_id = ?
+                """,
+                (favoriter_type, favoriter_id, source_id)
+            )
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True, 'message': 'Unfavorited'}), 200
+        else:
+            # Favorite doesn't exist → add it (favorite)
+            conn.execute(
+                """
+                INSERT INTO favorites (favoriter_type, favoriter_id, source_id)
+                VALUES (?, ?, ?)
+                """,
+                (favoriter_type, favoriter_id, source_id)
+            )
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True, 'message': 'Favorited'}), 201
+
+    except Exception as e:
+        conn.close()
+        print(f"Error toggling favorite: {e}")
+        return jsonify({'success': False, 'message': 'Error updating favorite'}), 500
+
+    return jsonify({'success': True})
+
+@app.route('/favorites', methods=['DELETE'])
+@token_required()
+def remove_favorite():
+    user = request.user
+    data = request.get_json()
+    source_id = data.get('source_id')
+    if not source_id:
+        return jsonify({'success': False, 'message': 'Missing source_id'}), 400
+
+    favoriter_type = user.get('type')
+
+    conn = get_db_connection()
+    try:
+        if favoriter_type not in ('admin', 'user'):
+            conn.close()
+            return jsonify({'success': False, 'message': 'Invalid user type'}), 400
+
+        if favoriter_type == 'admin':
+            email = user.get('email')
+            favoriter = conn.execute('SELECT admin_id FROM admins WHERE email = ?', (email,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'Admin not found'}), 404
+            favoriter_id = favoriter['admin_id']
+        else:
+            display_name = user.get('display_name')
+            favoriter = conn.execute('SELECT user_id FROM users WHERE display_name = ?', (display_name,)).fetchone()
+            if not favoriter:
+                conn.close()
+                return jsonify({'success': False, 'message': 'User not found'}), 404
+            favoriter_id = favoriter['user_id']
+
+        conn.execute(
+            "DELETE FROM favorites WHERE favoriter_type = ? AND favoriter_id = ? AND source_id = ?",
+            (favoriter_type, favoriter_id, source_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Unfavorited'}), 200
+
+    except Exception as e:
+        conn.close()
+        print(f"Error removing favorite: {e}")
+        return jsonify({'success': False, 'message': 'Error removing favorite'}), 500
+
 
 
 if __name__ == '__main__':
