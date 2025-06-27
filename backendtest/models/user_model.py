@@ -110,7 +110,7 @@ class Users:
         con.close()
         return user
 
-    def create_admin(email, password, fname, infix, lname, dateofbirth, status):
+    def create_admin(self, email, password, fname, infix, lname, dateofbirth, status):
         db = Database()
         cursor, con = db.connect_db()
         try:

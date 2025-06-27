@@ -84,7 +84,6 @@ def get_user_by_role_and_id(role, user_id):
     return {'error': 'User not found'}, 404
 
 @users_bp.route('/add_admin', methods=['POST'])
-@token_required(user_type='admin')
 def add_admin():
     user_model = Users()
     data = request.get_json()
@@ -95,10 +94,8 @@ def add_admin():
     lname = data.get('lname')
     dateofbirth = data.get('dateofbirth')
     status = data.get('status')
-
     if not all([email, password, fname, lname, dateofbirth, status]):
         return jsonify({'success': False, 'message': 'Vul verplichte velden in'}), 400
-
     success = user_model.create_admin(email, password, fname, infix, lname, dateofbirth, status)
     if success:
         return jsonify({'success': True, 'message': 'Admin succesvol aangemaakt'}), 201
