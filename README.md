@@ -66,6 +66,7 @@ Mocht je deze melding krijgen: ```command not found: npm```, open dan een termin
 #### ```sudo apt install nodejs npm```
 ### of op Windows:
 dan moet je hem downloaden via: https://nodejs.org/ 
+### Hierna kan je stap 6 opnieuw proberen.
 
 
 # Bronvermelding
