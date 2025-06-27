@@ -1,27 +1,34 @@
 from functools import wraps
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 import jwt
-
-app = Flask(__name__)
+from flask import current_app as app
 
 def token_required(user_type=None):
+
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             token = None
-            if 'Authorization' in request.headers:
-                parts = request.headers['Authorization'].split(" ")
-                if len(parts) == 2:
-                    token = parts[1]
-
+            auth_header = request.headers.get('Authorization')
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
             if not token:
                 return jsonify({'success': False, 'message': 'Token is missing'}), 401
-
             try:
-                data = jwt.decode(token, app.secret_key, algorithms=['HS256'])
-                if user_type and data.get('type') != user_type:
-                    return jsonify({'success': False, 'message': 'Access denied'}), 403
-                request.user = data
+                decoded = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+                if user_type:
+                    if isinstance(user_type, list):
+                        if decoded.get('type') not in user_type:
+                            return jsonify({'success': False, 'message': 'Access denied'}), 403
+                    else:
+                        if decoded.get('type') != user_type:
+                            return jsonify({'success': False, 'message': 'Access denied'}), 403
+
+                if decoded.get('type') == 'user':
+                    decoded['id'] = decoded.get('id')
+                elif decoded.get('type') == 'admin':
+                    decoded['id'] = decoded.get('id')
+                request.user = decoded
             except jwt.ExpiredSignatureError:
                 return jsonify({'success': False, 'message': 'Token expired'}), 401
             except jwt.InvalidTokenError:

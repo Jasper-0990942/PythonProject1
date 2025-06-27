@@ -3,6 +3,9 @@ import { StyleSheet, Text, TextInput, View, Pressable, Image } from 'react-nativ
 import { useRouter } from 'expo-router';
 import asyncstorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 import logo from '../assets/images/hogeschool-rotterdam.png';
 
@@ -18,7 +21,7 @@ function Login() {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:5000', {
+      const response = await fetch(`${apiBaseUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

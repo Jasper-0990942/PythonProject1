@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
 import {useRouter} from 'expo-router';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 export default function Registratiescherm() {
     const [email, setEmail] = useState('');
@@ -13,12 +16,12 @@ export default function Registratiescherm() {
     const [error, setError] = useState('');
     const [infix, setInfix] = useState('');
 
-    const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
     const router = useRouter();
 
     const aanmaakRegistratie = async () => {
         console.log("Knop is ingedrukt");
-        console.log("Backend URL:", backendUrl);
+        console.log("apiBaseUrl:", apiBaseUrl);
+        console.log("Check URL:", `${apiBaseUrl}/users/register`);
         if (!studentnr || !dateofbirth || !password || !confirmPassword || !fname || !lname) {
             alert("Vul alle velden in.");
             console.log("test")
@@ -41,7 +44,7 @@ export default function Registratiescherm() {
             return;
         }
         try {
-            const emailCheck = await fetch(`${backendUrl}/users/checkmail`, {
+            const emailCheck = await fetch(`${apiBaseUrl}/users/checkmail`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({email}),
@@ -56,7 +59,7 @@ export default function Registratiescherm() {
             return;
         }
         try {
-            const response = await fetch(`${backendUrl}/users/register`, {
+            const response = await fetch(`${apiBaseUrl}/users/register`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -67,22 +70,16 @@ export default function Registratiescherm() {
                     studentnr,
                     dateofbirth,
                     password,
-                }),
-            });
-
+                }),});
             if (!response.ok) {
                 throw new Error('Registratie mislukt');
             }
-
-
             alert(`Gelukt! Welkom ${fname}!`);
-            router.push('/login');
-
+            router.push('/');
         } catch (error) {
             console.error("FOUTTTT", error);
             alert('Er ging iets mis bij het registreren.');
-        }
-    };
+        }};
 
     return (
         <KeyboardAvoidingView
@@ -168,7 +165,7 @@ export default function Registratiescherm() {
                     </Pressable>
                 </View>
                 <View className="w-full max-w-md self-center mb-4">
-                    <Pressable onPress={() => router.push('/login')} className="flex-row items-center">
+                    <Pressable onPress={() => router.push('/')} className="flex-row items-center">
                         <Text className="text-hrRed text-base">&larr; Terug naar login</Text>
                     </Pressable>
                 </View>

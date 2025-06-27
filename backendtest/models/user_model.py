@@ -90,8 +90,6 @@ class Users:
         try:
             if role == 'user':
                 self.cursor.execute("UPDATE users SET status = 'geblokkeerd' WHERE user_id = ?", (user_id,))
-            elif role == 'admin':
-                self.cursor.execute("UPDATE admins SET status = 'geblokkeerd' WHERE admin_id = ?", (user_id,))
             else:
                 return False
             if self.cursor.rowcount == 0:
@@ -111,3 +109,21 @@ class Users:
         user = cursor.fetchone()
         con.close()
         return user
+
+    def create_admin(self, email, password, fname, infix, lname, dateofbirth, status):
+        db = Database()
+        cursor, con = db.connect_db()
+        try:
+            con.execute(
+                """
+                INSERT INTO admins (email, password, fname, infix, lname, dateofbirth, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (email, password, fname, infix, lname, dateofbirth, status))
+            con.commit()
+            return True
+        except Exception as e:
+            print("Fout bij toevoegen admin:", e)
+            return False
+        finally:
+            con.close()

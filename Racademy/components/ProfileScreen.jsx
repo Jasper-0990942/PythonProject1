@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -41,7 +44,7 @@ useEffect(() => {
       setIsAdmin(userData.type === 'admin');
 
 
-      const resp = await fetch('http://127.0.0.1:5000/profile', {
+      const resp = await fetch(`${apiBaseUrl}/profile`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${tokenValue}` },
       });
@@ -99,7 +102,7 @@ useEffect(() => {
     }
 
     try { console.log('Token being sent:', tokenValue);
-      const resp = await fetch('http://127.0.0.1:5000/update_profile', {
+      const resp = await fetch(`${apiBaseUrl}/update_profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,18 +2,15 @@ from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
 import jwt
-import datetime
-from functools import wraps
+from datetime import datetime, timedelta, timezone
 import os
 from werkzeug.security import check_password_hash
-
 from auth_token import token_required
-
 from blueprints.users import users_bp
 from blueprints.sources import (sources_bp)
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app)
 app.secret_key = 'biem'
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -22,45 +19,14 @@ DATABASE = os.path.join(BASE_DIR, 'database', 'database.db')
 app.register_blueprint(users_bp, url_prefix="/users")
 app.register_blueprint(sources_bp, url_prefix="/sources")
 
-
-def token_required(user_type=None):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            token = None
-            if 'Authorization' in request.headers:
-                parts = request.headers['Authorization'].split(" ")
-                if len(parts) == 2:
-                    token = parts[1]
-
-            if not token:
-                return jsonify({'success': False, 'message': 'Token is missing'}), 401
-
-            try:
-                data = jwt.decode(token, app.secret_key, algorithms=['HS256'])
-                if user_type and data.get('type') != user_type:
-                    return jsonify({'success': False, 'message': 'Access denied'}), 403
-                request.user = data
-            except jwt.ExpiredSignatureError:
-                return jsonify({'success': False, 'message': 'Token expired'}), 401
-            except jwt.InvalidTokenError:
-                return jsonify({'success': False, 'message': 'Invalid token'}), 401
-
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
-
-
 def get_db_connection():
     conn = sqlite3.connect(DATABASE, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
-
 @app.route('/', methods=['GET'])
 def index():
     return "API is running", 200
-
 
 @app.route('/', methods=['POST'])
 def login():
@@ -78,22 +44,30 @@ def login():
         (login_input,)
     ).fetchone()
 
-    if admin and check_password_hash(admin['password'], password):
-        admin_data = dict(admin)
-        token = jwt.encode({
-            'email': admin_data['email'],
-            'type': 'admin',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        }, app.secret_key, algorithm='HS256')
+    if admin:
+        stored_password = admin['password']
+        password_matches = (
+            check_password_hash(stored_password, password) or
+            stored_password == password  # Fallback: plain-text check
+        )
 
-        admin_data.pop('password', None)
+        if password_matches:
+            admin_data = dict(admin)
+            token = jwt.encode({
+                'email': admin_data['email'],
+                'type': 'admin',
+                'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
+            }, app.secret_key, algorithm='HS256')
 
-        return jsonify({
-            'success': True,
-            'type': 'admin',
-            'token': token,
-            'user': admin_data
-        })
+            admin_data.pop('password', None)
+
+            conn.close()
+            return jsonify({
+                'success': True,
+                'type': 'admin',
+                'token': token,
+                'user': admin_data
+            })
 
     user = conn.execute(
         '''
@@ -105,24 +79,32 @@ def login():
 
     conn.close()
 
-    if user and check_password_hash(user['password'], password):
-        user_data = dict(user)
-        token = jwt.encode({
-            'display_name': user_data['display_name'],
-            'type': 'user',
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        }, app.secret_key, algorithm='HS256')
+    if user:
+        stored_password = user['password']
+        password_matches = (
+            check_password_hash(stored_password, password) or
+            stored_password == password  # Fallback: plain-text check
+        )
 
-        user_data.pop('password', None)
+        if password_matches:
+            user_data = dict(user)
+            token = jwt.encode({
+                'display_name': user_data['display_name'],
+                'type': 'user',
+                'exp': datetime.now(timezone.utc) + timedelta(minutes=3000)
+            }, app.secret_key, algorithm='HS256')
 
-        return jsonify({
-            'success': True,
-            'type': 'user',
-            'token': token,
-            'user': user_data
-        })
+            user_data.pop('password', None)
+
+            return jsonify({
+                'success': True,
+                'type': 'user',
+                'token': token,
+                'user': user_data
+            })
 
     return jsonify({"success": False, "message": "Incorrect username or password"}), 401
+
 
 
 @app.route('/profile', methods=['GET'])
@@ -252,7 +234,6 @@ def update_profile():
 def get_resources():
     data = request.get_json()
     email = data.get('email')
-
     if not email:
         return jsonify({'success': False, 'message': 'Email is required'}), 400
 

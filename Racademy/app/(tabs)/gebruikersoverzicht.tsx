@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, ActivityIndicator, Pressable, ScrollView, TextInput, Modal, TouchableOpacity} from 'react-native';
 import {useRouter} from 'expo-router';
+import Constants from 'expo-constants';
+
+const apiBaseUrl = Constants.expoConfig?.extra?.apiBaseUrl;
 
 type User = {
     id: number;
@@ -17,17 +20,21 @@ export default function OverzichtUsers() {
     const router = useRouter();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUserRole, setCurrentUserRole] = useState<'admin' | 'user' | null>(null);
     const [roleFilter, setRoleFilter] = useState<string>('');
     const [pickerZien, setPickerZien] = useState(false);
     const roles = ['user', 'admin'];
     const [nameFilter, setNameFilter] = useState<string>('');
     const [studentNummerFilter, setStudentNummerFilter] = useState<string>('');
 
+
     useEffect(() => {
         async function fetchUsers() {
             try {
                 console.log('Fetching users apart');
-                const res = await fetch('http://localhost:5000/users/apart');
+                console.log('API URL:', apiBaseUrl);
+
+                const res = await fetch(`${apiBaseUrl}/users/apart`);
                 const json = await res.json();
                 const combined = [...json.admins, ...json.users];
                 console.log('Gebruikersdata ontvangen', combined);
@@ -62,6 +69,13 @@ export default function OverzichtUsers() {
         <ScrollView className="flex-1 bg-white px-6 pt-6">
             <View className="items-center mb-6">
                 <Text className="text-3xl font-bold text-hrRed">Gebruikersoverzicht</Text>
+            </View>
+            <View className="mb-4">
+                <Pressable
+                    onPress={() => router.push('/newadmin')}
+                    className="bg-hrRed px-4 py-2 rounded-md mt-4 items-center">
+                    <Text className="text-white font-semibold">Nieuwe admin aanmaken</Text>
+                </Pressable>
             </View>
             <View className="flex-row flex-wrap gap-2 mb-6">
                 <TextInput
@@ -120,7 +134,7 @@ export default function OverzichtUsers() {
             </View>
             <View className="space-y-4">
                 {filteredUsers.map((user) => (
-                    <View key={user.id} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
+                    <View key={`${user.role}-${user.id}`} className="border border-hrRed rounded-xl p-4 bg-gray-50 shadow-sm">
                         <Text
                             className="text-lg font-semibold text-gray-800">{user.fname} {user.infix ?? ''} {user.lname}</Text>
                         <Text className="text-sm text-gray-600">{user.email} ({user.role})</Text>
