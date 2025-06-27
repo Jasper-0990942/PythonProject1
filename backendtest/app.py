@@ -19,17 +19,14 @@ DATABASE = os.path.join(BASE_DIR, 'database', 'database.db')
 app.register_blueprint(users_bp, url_prefix="/users")
 app.register_blueprint(sources_bp, url_prefix="/sources")
 
-
 def get_db_connection():
     conn = sqlite3.connect(DATABASE, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
-
 @app.route('/', methods=['GET'])
 def index():
     return "API is running", 200
-
 
 @app.route('/', methods=['POST'])
 def login():
