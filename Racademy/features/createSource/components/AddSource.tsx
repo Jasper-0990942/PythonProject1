@@ -58,7 +58,14 @@ function AddSource() {
                 contentContainerStyle={{ paddingBottom: 40 }}
                 keyboardShouldPersistTaps="handled">
                 <View className="min-h-screen bg-white p-3 shadow-md shadow-neutral-200">
-                <Text className="text-3xl font-bold mb-3 text-center">Bronnen</Text>
+                <Text className="text-3xl font-bold mb-1 text-center">Bronnen</Text>
+
+<View className="w-full max-w-md self-center mb-4">
+    <Pressable onPress={() => router.push('bronnenoverzicht')} className="flex-row items-center">
+        <Text className="text-hrRed text-base">&larr; Terug naar bronnenoverzicht</Text>
+    </Pressable>
+</View>
+
                     <View className="flex-row justify-between mb-4">
                         <Pressable
                             onPress={() => setSourceType('link')}
