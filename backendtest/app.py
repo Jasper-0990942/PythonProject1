@@ -5,9 +5,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 import os
 from werkzeug.security import check_password_hash
-
 from auth_token import token_required
-
 from blueprints.users import users_bp
 from blueprints.sources import (sources_bp)
 
