@@ -37,7 +37,6 @@ export default function OverzichtUsers() {
             const res = await fetch(`${apiBaseUrl}/users/apart`);
             const json = await res.json();
             const combined = [...json.admins, ...json.users];
-            console.log('Gebruikersdata ontvangen', combined);
             setUsers(combined);
         } catch (error) {
             console.error('Fout bij het ophalen van gebruikers:', error);
