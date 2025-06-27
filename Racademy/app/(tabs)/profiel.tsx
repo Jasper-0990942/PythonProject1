@@ -49,7 +49,7 @@ export default function ProfileScreen() {
 
         if (!tokenValue || !userData) {
           Alert.alert('Error', 'Geen token gevonden. Log opnieuw in.');
-          router.push('/login' as const);
+          router.push('/' as const);
           return;
         }
 
@@ -155,14 +155,12 @@ export default function ProfileScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Profiel Bewerken</Text>
 
-      {isAdmin ? (
+
         <TextInput style={styles.input} placeholder="Email" value={profile.email} onChangeText={email => setProfile(p => ({ ...p, email }))} />
-      ) : (
         <>
           <TextInput style={styles.input} placeholder="Gebruikersnaam" value={profile.display_name} onChangeText={display_name => setProfile(p => ({ ...p, display_name }))} />
           <TextInput style={styles.input} placeholder="Studentnummer" value={profile.studentnr} onChangeText={studentnr => setProfile(p => ({ ...p, studentnr }))} />
         </>
-      )}
 
       <TextInput style={styles.input} placeholder="Voornaam" value={profile.fname} onChangeText={fname => setProfile(p => ({ ...p, fname }))} />
       <TextInput style={styles.input} placeholder="Tussenvoegsel" value={profile.infix} onChangeText={infix => setProfile(p => ({ ...p, infix }))} />
