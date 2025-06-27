@@ -85,8 +85,7 @@ export default function UserDetails() {
             <View className="flex-1 items-center justify-center bg-white">
                 <ActivityIndicator size="large" color="#b30000"/>
             </View>
-        );
-    }
+        );}
 
     if (!user) {
         return (
